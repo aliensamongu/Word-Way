@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="parchment">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word & Way - Bible Study Notes</title>
+    <!-- Google Fonts: English, Koine Greek, Biblical Hebrew, and Handwriting Brand Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Caveat:wght@600&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=Noto+Serif+Hebrew:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- html2pdf Library for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            /* Parchment Theme (Default) */
+            --bg-color: #0b192c;
+            --paper-color: #fffdf9;
+            --text-color: #1e293b;
+            --royal-blue: #1e3a8a;
+            --gold: #c5a059;
+            --grid-line: #f7f3eb;
+            --border-radius: 14px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --paper-color: #1e293b;
+            --text-color: #f1f5f9;
+            --royal-blue: #93c5fd;
+            --gold: #d97706;
+            --grid-line: #334155;
+        }
+
+        [data-theme="academic"] {
+            --bg-color: #f1f5f9;
+            --paper-color: #ffffff;
+            --text-color: #0f172a;
+            --royal-blue: #0284c7;
+            --gold: #64748b;
+            --grid-line: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column;
+            height: 100vh;
+            transition: background-color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        /* Toolbar Header */
+        .toolbar {
+            position: sticky; top: 0;
+            background: rgba(255, 253, 249, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+            display: flex; justify-content: center; align-items: flex-start;
+            gap: 10px; z-index: 100;
+            border-bottom: 3px solid var(--gold);
+            flex-wrap: wrap;
+        }
+
+        .tool-group {
+            display: flex; align-items: center; gap: 6px;
+            background: #f4f6fa; padding: 4px 10px;
+            border-radius: 100px; border: 1px solid #cbd5e1;
+        }
+
+        .tool-group-label {
+            font-size: 0.7rem; color: #1e3a8a;
+            font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.8px; margin-right: 2px;
+        }
+
+        .app-brand {
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold);
+            padding-left: 6px;
+            letter-spacing: 0.5px;
+            user-select: none;
+            line-height: 1.1;
+        }
+
+        button, select {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px; font-weight: 600;
+            transition: all 0.2s ease;
+            height: 32px;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0 10px;
+            color: #1e293b;
+        }
+
+        button:hover, select:hover {
+            border-color: var(--gold);
+            transform: translateY(-1px);
+        }
+
+        .btn-action {
+            background: white !important;
+            color: #1e3a8a !important;
+            font-weight: 600 !important;
+        }
+
+        .btn-pdf {
+            background: #1e3a8a !important;
+            color: white !important;
+            border-color: #1e3a8a !important;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-container { position: relative; }
+
+        .dropdown-menu {
+            display: none; position: absolute;
+            top: 100%; left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            background: #ffffff;
+            border: 2px solid var(--gold);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            border-radius: 12px; padding: 14px;
+            width: 280px; z-index: 200;
+            flex-direction: column; gap: 10px;
+        }
+
+        .dropdown-menu.show { display: flex; }
+
+        .menu-section {
+            font-size: 0.7rem; color: #64748b; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;
+        }
+
+        /* File Manager List */
+        .file-list { display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto; }
+        .file-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0;
+            background: #ffffff; cursor: pointer; font-size: 0.85rem;
+        }
+        .file-item:hover { border-color: var(--gold); background: #f8fafc; }
+        .file-item.active { border-color: #1e3a8a; background: #eff6ff; font-weight: 600; }
+        .file-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+        .btn-delete-file { border: none; background: transparent; color: #94a3b8; padding: 0 4px; height: auto; }
+        .btn-delete-file:hover { color: #ef4444; background: transparent; }
+
+        /* Tag UI */
+        .tags-container {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;
+            align-items: center; font-family: 'Inter', sans-serif;
+        }
+        .tag-chip {
+            background: rgba(197, 160, 89, 0.2); color: var(--text-color);
+            border: 1px solid var(--gold); border-radius: 100px;
+            padding: 2px 10px; font-size: 0.75rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .tag-chip .remove-tag { cursor: pointer; color: #94a3b8; font-size: 11px; }
+        .tag-chip .remove-tag:hover { color: #ef4444; }
+        .btn-add-tag {
+            background: transparent; border: 1px dashed var(--gold);
+            border-radius: 100px; padding: 2px 10px; font-size: 0.75rem;
+            color: var(--text-color); cursor: pointer; height: 24px;
+        }
+
+        /* Passage Header & CNTR Link Container */
+        .passage-header-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 8px;
+        }
+        .passage-header-container h2 {
+            margin: 0 !important;
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 1.7rem; color: var(--royal-blue);
+        }
+        .cntr-external-link {
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: var(--royal-blue);
+            display: inline-flex;
+            align-items: center;
+            transition: transform 0.15s ease, color 0.15s ease;
+            vertical-align: middle;
+            font-weight: bold;
+        }
+        .cntr-external-link:hover {
+            color: var(--gold);
+            transform: scale(1.15);
+        }
+
+        /* Paper Editor Workspace */
+        .editor-container {
+            flex-grow: 1; 
+            padding: 30px 20px 80px 20px;
+            overflow-y: auto; 
+            display: flex; 
+            justify-content: center;
+            align-items: flex-start;
+            transition: margin-right 0.3s ease;
+        }
+
+        #editor {
+            width: 100%; 
+            max-width: 800px;
+            background: var(--paper-color);
+            padding: 60px 80px; 
+            min-height: 75vh; 
+            height: auto;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 0 0 2px var(--gold);
+            border-radius: var(--border-radius);
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-size: 1.25rem; line-height: 1.8;
+            color: var(--text-color); outline: none;
+            background-image: 
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        #editor h3 {
+            font-family: 'Inter', sans-serif; font-weight: 700;
+            font-size: 1.25rem; color: var(--royal-blue);
+            margin-top: 32px; margin-bottom: 12px;
+            text-transform: uppercase; border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 4px;
+        }
+
+        #editor h4 {
+            font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.15rem;
+            color: var(--royal-blue); margin-top: 20px; margin-bottom: 6px; letter-spacing: -0.2px;
+        }
+
+        #editor h5 {
+            font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1.0rem;
+            color: var(--gold); margin-top: 12px; margin-bottom: 4px; padding-left: 10px;
+            border-left: 3px solid var(--gold);
+        }
+
+        #editor p { margin-top: 4px; margin-bottom: 12px; }
+
+        .lang-greek { font-family: 'Gentium Book Plus', 'Cardo', serif !important; font-size: 1.35rem; }
+        .lang-hebrew { font-family: 'Noto Serif Hebrew', serif !important; font-size: 1.4rem; direction: rtl; unicode-bidi: embed; }
+
+        /* Manuscript Evidence Log Styles */
+        .ms-log-container { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+        .ms-log-header-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 70px 30px;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--royal-blue);
+            text-transform: uppercase;
+            padding: 0 4px;
+        }
+        .ms-log-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 70px 30px;
+            gap: 8px;
+            align-items: center;
+            background: rgba(226, 232, 240, 0.3);
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+        .ms-log-field {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.95rem;
+            outline: none;
+            color: var(--text-color);
+            min-height: 32px;
+            font-family: 'Crimson Pro', Georgia, serif;
+        }
+        .ms-log-field:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.2); }
+        .ms-log-rating {
+            height: 32px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: white;
+            font-weight: 700;
+            color: var(--royal-blue);
+            text-align: center;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+        .ms-log-rating:focus { border-color: var(--gold); }
+
+        .diagram-wrapper {
+            position: relative; display: block; margin: 16px 0;
+            max-width: 100%; border: 1px dashed transparent; transition: border 0.2s;
+            overflow-x: auto; padding: 4px;
+        }
+        .diagram-wrapper:hover { border-color: var(--gold); }
+        .diagram-img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+        .diagram-controls {
+            position: absolute; top: 6px; right: 6px;
+            display: none; gap: 4px; background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--gold); border-radius: 20px; padding: 2px 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 10;
+        }
+        .diagram-wrapper:hover .diagram-controls { display: flex; }
+
+        .diagram-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(8px);
+            z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .diagram-modal.active { display: flex; }
+        .modal-toolbar {
+            position: absolute; top: 20px; display: flex; gap: 8px; align-items: center;
+            background: #ffffff; padding: 6px 16px; border-radius: 100px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1001; border: 2px solid var(--gold);
+        }
+        .modal-toolbar span { font-size: 0.8rem; font-weight: 700; color: var(--royal-blue); margin-right: 8px; }
+        .modal-viewport {
+            width: 95vw; height: 90vh; overflow: auto; display: flex;
+            justify-content: center; align-items: center; cursor: grab; user-select: none;
+        }
+        .modal-viewport:active { cursor: grabbing; }
+        .modal-img {
+            max-width: none; transition: transform 0.1s ease-out; transform-origin: center center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-radius: 8px; background: #ffffff;
+        }
+
+        .marker { padding: 0.1em 0.2em; border-radius: 0.4em; mix-blend-mode: multiply; }
+        .marker.yellow { background: rgba(253, 224, 71, 0.7); }
+        .marker.pink { background: rgba(244, 114, 182, 0.6); }
+        .marker.green { background: rgba(134, 239, 172, 0.7); }
+        .marker.blue { background: rgba(147, 197, 253, 0.7); }
+
+        .blocks-container { display: flex; flex-direction: column; gap: 6px; margin: 16px 0; }
+        .outline-block { display: flex; align-items: flex-start; gap: 8px; padding: 4px 6px; border-radius: 6px; }
+        .outline-block:hover { background: rgba(226, 232, 240, 0.4); }
+        .outline-block[data-indent="1"] { margin-left: 28px; border-left: 2px solid var(--gold); }
+        .outline-block[data-indent="2"] { margin-left: 56px; border-left: 2px solid var(--gold); }
+        .block-controls { display: flex; opacity: 0.3; }
+        .outline-block:hover .block-controls { opacity: 1; }
+        .block-content { flex-grow: 1; outline: none; word-break: break-word; }
+        
+        /* Drawer Styles */
+        #ms-drawer {
+            position: fixed;
+            top: 0;
+            right: -600px;
+            width: 600px;
+            max-width: 100vw;
+            height: 100vh;
+            background-color: var(--paper-color);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.3);
+            transition: right 0.3s ease;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            border-left: 3px solid var(--gold);
+        }
+        
+        #ms-drawer.open { right: 0; }
+        
+        .drawer-header {
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 253, 249, 0.98);
+        }
+        
+        .drawer-header h3 {
+            margin: 0;
+            color: var(--royal-blue);
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2rem;
+        }
+        
+        .drawer-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .ms-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .ms-table th {
+            background-color: var(--royal-blue);
+            color: white;
+            text-align: left;
+            padding: 8px;
+            font-family: 'Inter', sans-serif;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .ms-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+        }
+        
+        .ms-table tr:nth-child(even) {
+            background-color: rgba(0,0,0,0.03);
+        }
+
+        @media print {
+            .toolbar, .diagram-controls, .btn-add-tag, .remove-tag, .diagram-modal, #ms-drawer, .btn-drawer { display: none !important; }
+            #editor { box-shadow: none; border: none; padding: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body onload="initStorage()">
+
+    <div class="toolbar">
+        <!-- Far Left: File Storage Group & App Brand Title Stacked -->
+        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+            <div class="tool-group" style="margin: 0;">
+                <span class="tool-group-label">File</span>
+                <button class="btn-action" onclick="createNewStudy()">+ New</button>
+                
+                <div class="dropdown-container">
+                    <button class="btn-action" onclick="toggleMenu('file-menu', event)">📂 Open ▾</button>
+                    <div id="file-menu" class="dropdown-menu">
+                        <div class="menu-section">Saved Studies</div>
+                        <div id="file-list" class="file-list"></div>
+                    </div>
+                </div>
+
+                <button class="btn-action btn-pdf" onclick="exportToPDF()">📥 PDF</button>
+            </div>
+            <!-- App Brand Title -->
+            <div class="app-brand">Word & Way</div>
+        </div>
+
+        <!-- Structure Group -->
+        <div class="tool-group">
+            <span class="tool-group-label">Structure</span>
+            <button onclick="applyStructure('h4')" title="Main Point Header">Header</button>
+            <button onclick="applyStructure('h5')" title="Sub-Point Header">Sub-Header</button>
+            <button onclick="applyStructure('p')" title="Standard Paragraph Text">Body</button>
+        </div>
+
+        <!-- Language & Font Picker -->
+        <div class="tool-group">
+            <span class="tool-group-label">Font</span>
+            <select id="fontSelect" onchange="applyFont(this.value)">
+                <option value="standard">English</option>
+                <option value="greek">Greek (Gentium)</option>
+                <option value="hebrew">Hebrew (Noto Serif)</option>
+            </select>
+        </div>
+
+        <!-- Ink Colors -->
+        <div class="tool-group">
+            <span class="tool-group-label">Ink</span>
+            <button onclick="applyTextColor('#1e3a8a')" style="color: #1e3a8a; font-weight: bold;">A</button>
+            <button onclick="applyTextColor('#991b1b')" style="color: #991b1b; font-weight: bold;">A</button>
+            <button onclick="applyTextColor('#1e293b')" style="color: #1e293b; font-weight: bold;">A</button>
+        </div>
+
+        <!-- Highlighting & Eraser -->
+        <div class="tool-group">
+            <span class="tool-group-label">Marker</span>
+            <button onclick="applyHighlight('yellow')" style="background: #fef08a;">H</button>
+            <button onclick="applyHighlight('pink')" style="background: #fbcfe8;">H</button>
+            <button onclick="applyHighlight('green')" style="background: #bbf7d0;">H</button>
+            <button onclick="applyHighlight('blue')" style="background: #bfdbfe;">H</button>
+            <button onclick="clearFormatting()" title="Eraser">✕</button>
+        </div>
+
+        <!-- Theme Selection -->
+        <div class="tool-group">
+            <span class="tool-group-label">Theme</span>
+            <select onchange="setTheme(this.value)">
+                <option value="parchment">Parchment</option>
+                <option value="dark">Dark Slate</option>
+                <option value="academic">Academic White</option>
+            </select>
+        </div>
+        
+        <!-- Drawer Toggle -->
+        <div class="tool-group">
+             <button class="btn-action btn-drawer" onclick="toggleDrawer()">📖 Manuscripts</button>
+        </div>
+    </div>
+    
+    <!-- Drawer Container (Complete 41 NT Manuscripts Table) -->
+    <div id="ms-drawer">
+        <div class="drawer-header">
+            <h3>New Testament Manuscripts (Complete)</h3>
+            <button class="btn-delete-file" style="font-size: 1.2rem; margin-right: 10px;" onclick="toggleDrawer()">✕</button>
+        </div>
+        <div class="drawer-content">
+            <table border="1" class="dataframe ms-table">
+              <thead>
+                <tr style="text-align: right;">
+                  <th>Designation</th>
+                  <th>Name / Catalog</th>
+                  <th>Century</th>
+                  <th>Date (approx.)</th>
+                  <th>Contents / Material</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>P52</td><td>Rylands Library Papyrus P52</td><td>2nd</td><td>c. 125–150 AD</td><td>John 18:31-33, 37-38 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P46</td><td>Chester Beatty II</td><td>2nd / 3rd</td><td>c. 175–225 AD</td><td>Pauline Epistles, Hebrews (Papyrus codex)[cite: 1]</td></tr>
+                <tr><td>P66</td><td>Bodmer II</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Gospel of John (Nearly complete papyrus codex)[cite: 1]</td></tr>
+                <tr><td>P45</td><td>Chester Beatty I</td><td>3rd</td><td>c. 250 AD</td><td>Gospels and Acts (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P47</td><td>Chester Beatty III</td><td>3rd</td><td>c. 250–300 AD</td><td>Revelation (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P72</td><td>Bodmer VII and VIII</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Jude, 1 and 2 Peter (Papyrus codex)[cite: 1]</td></tr>
+                <tr><td>P75</td><td>Bodmer XIV–XV</td><td>3rd / 4th</td><td>c. 175–225 AD</td><td>Luke and John (Papyrus codex)[cite: 1]</td></tr>
+                <tr><td>P1</td><td>Oxyrhynchus 2</td><td>3rd</td><td>c. 250 AD</td><td>Matthew 1:1-9, 12, 14-20 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P4</td><td>Paris, Bibl. Nat., Suppl. Gr. 1120</td><td>3rd</td><td>c. 200-250 AD</td><td>Luke 1, 5, 6 (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P5</td><td>Oxyrhynchus 208 + 1781</td><td>3rd</td><td>c. 250 AD</td><td>John 1, 16, 20 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P13</td><td>Oxyrhynchus 657 + PSI 1292</td><td>3rd / 4th</td><td>c. 250-300 AD</td><td>Hebrews (Papyrus scroll)[cite: 1]</td></tr>
+                <tr><td>P22</td><td>Oxyrhynchus 1228</td><td>3rd</td><td>c. 250 AD</td><td>John 15-16 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P23</td><td>Oxyrhynchus 1229</td><td>3rd</td><td>c. 200-250 AD</td><td>James 1:10-12, 15-18 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P27</td><td>Oxyrhynchus 1355</td><td>3rd</td><td>c. 250 AD</td><td>Romans 8-9 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P28</td><td>Oxyrhynchus 1596</td><td>3rd</td><td>c. 250 AD</td><td>John 6:8-12, 17-22 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P29</td><td>Oxyrhynchus 1597</td><td>3rd</td><td>c. 200-250 AD</td><td>Acts 26:7-8, 20 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P30</td><td>Oxyrhynchus 1598</td><td>3rd</td><td>c. 250 AD</td><td>1 &amp; 2 Thessalonians (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P32</td><td>Rylands Papyrus 5</td><td>2nd</td><td>c. 150-200 AD</td><td>Titus 1:11-15; 2:3-8 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P37</td><td>Michigan Inv. 1570</td><td>3rd</td><td>c. 250-300 AD</td><td>Matthew 26:19-52 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P38</td><td>Michigan Inv. 1571</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Acts 18:27-19:6, 12-16 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P39</td><td>Oxyrhynchus 1780</td><td>3rd</td><td>c. 250 AD</td><td>John 8:14-22 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P40</td><td>Heidelberg Inv. 45</td><td>3rd</td><td>c. 250 AD</td><td>Romans (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P48</td><td>Florence, PSI 1165</td><td>3rd</td><td>c. 250 AD</td><td>Acts 23:11-17, 23-29 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P49</td><td>Yale Inv. 415</td><td>3rd</td><td>c. 250 AD</td><td>Ephesians 4:16-29, 4:31-5:13 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P53</td><td>Michigan Inv. 6652</td><td>3rd</td><td>c. 250 AD</td><td>Matthew, Acts fragments (Papyrus)[cite: 1]</td></tr>
+                <tr><td>P64 / P67</td><td>Magdalen Gr. 17 + Barcelona</td><td>2nd</td><td>c. 175-200 AD</td><td>Matthew 3, 5, 26 (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P69</td><td>Oxyrhynchus 2383</td><td>3rd</td><td>c. 250 AD</td><td>Luke 22:41, 45-48, 58-61 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P70</td><td>Oxyrhynchus 2384 + PSI 3407</td><td>3rd</td><td>c. 250 AD</td><td>Matthew fragments (Papyrus)[cite: 1]</td></tr>
+                <tr><td>P77</td><td>Oxyrhynchus 2683 + 4405</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Matthew 23 (Papyrus fragments)[cite: 1]</td></tr>
+                <tr><td>P90</td><td>Oxyrhynchus 3523</td><td>2nd</td><td>c. 150-200 AD</td><td>John 18:36-19:7 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P92</td><td>PNob 1</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Ephesians, 2 Thessalonians fragments (Papyrus)[cite: 1]</td></tr>
+                <tr><td>P95</td><td>PLaur Inv. II/31</td><td>3rd</td><td>c. 200-250 AD</td><td>John 5:26-29, 36-38 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P98</td><td>P.IFAO inv. 237b</td><td>2nd</td><td>c. 150-175 AD</td><td>Revelation 1:13-20 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P104</td><td>Oxyrhynchus 4404</td><td>2nd</td><td>c. 150 AD</td><td>Matthew 21:34-37, 43, 45 (Papyrus fragment)[cite: 1]</td></tr>
+                <tr><td>P115</td><td>Oxyrhynchus 4499</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Revelation fragments (Papyrus)[cite: 1]</td></tr>
+                <tr><td>Aleph (01)</td><td>Codex Sinaiticus</td><td>4th</td><td>c. 330–360 AD</td><td>Complete New Testament (Parchment)[cite: 1]</td></tr>
+                <tr><td>A (02)</td><td>Codex Alexandrinus</td><td>5th</td><td>c. 400–450 AD</td><td>Almost complete New Testament (Parchment)[cite: 1]</td></tr>
+                <tr><td>B (03)</td><td>Codex Vaticanus</td><td>4th</td><td>c. 325–350 AD</td><td>Nearly complete Greek Bible (Parchment)[cite: 1]</td></tr>
+                <tr><td>C (04)</td><td>Codex Ephraemi Rescriptus</td><td>5th</td><td>c. 450 AD</td><td>Palimpsest with ~66% of NT (Parchment)[cite: 1]</td></tr>
+                <tr><td>D (05)</td><td>Codex Bezae</td><td>5th</td><td>c. 400-450 AD</td><td>Gospels and Acts, bilingual Greek/Latin (Parchment)[cite: 1]</td></tr>
+                <tr><td>W (032)</td><td>Codex Washingtonianus</td><td>4th / 5th</td><td>c. 400 AD</td><td>Four Gospels (Parchment)[cite: 1]</td></tr>
+                <tr><td>0189</td><td>Berlin, Staatl. Mus. P. 11765</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Acts 5:3-21 (Earliest parchment uncial fragment)[cite: 1]</td></tr>
+              </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="editor-container" id="main-editor-container">
+        <div id="editor" contenteditable="true"></div>
+    </div>
+
+    <!-- Interactive Diagram Inspector Modal -->
+    <div id="diagramModal" class="diagram-modal">
+        <div class="modal-toolbar">
+            <span>Diagram Inspector</span>
+            <button class="btn-action" onclick="zoomModal(1.25)" title="Zoom In">+</button>
+            <button class="btn-action" onclick="zoomModal(0.8)" title="Zoom Out">-</button>
+            <button class="btn-action" onclick="resetModalZoom()" title="Reset Zoom">Reset</button>
+            <button class="btn-delete-file" onclick="closeDiagramModal()" style="font-size:16px; margin-left:8px;" title="Close Inspector">✕</button>
+        </div>
+        <div id="modalViewport" class="modal-viewport">
+            <img id="modalImage" class="modal-img" src="" alt="Diagram Large View"/>
+        </div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const STORAGE_FILES_KEY = 'bible_study_files_v10';
+        const STORAGE_ACTIVE_ID_KEY = 'bible_study_active_id_v10';
+
+        const bookMap = {
+            'matt': '40', 'matthew': '40',
+            'mark': '41', 'mk': '41',
+            'luke': '42', 'lk': '42',
+            'john': '43', 'jn': '43',
+            'acts': '44',
+            'rom': '45', 'romans': '45',
+            '1cor': '46', '1 cor': '46', '1 corinthians': '46',
+            '2cor': '47', '2 cor': '47', '2 corinthians': '47',
+            'gal': '48', 'galatians': '48',
+            'eph': '49', 'ephesians': '49',
+            'phil': '50', 'philippians': '50',
+            'col': '51', 'colossians': '51',
+            '1thess': '52', '1 thess': '52', '1 thessalonians': '52',
+            '2thess': '53', '2 thess': '53', '2 thessalonians': '53',
+            '1tim': '54', '1 tim': '54', '1 timothy': '54',
+            '2tim': '55', '2 tim': '55', '2 timothy': '55',
+            'titus': '56', 'tit': '56',
+            'phlm': '57', 'philemon': '57',
+            'heb': '58', 'hebrews': '58',
+            'jas': '59', 'james': '59',
+            '1pet': '60', '1 pet': '60', '1 peter': '60',
+            '2pet': '61', '2 pet': '61', '2 peter': '61',
+            '1john': '62', '1 john': '62', '1 jn': '62',
+            '2john': '63', '2 john': '63', '2 jn': '63',
+            '3john': '64', '3 john': '64', '3 jn': '64',
+            'jude': '65',
+            'rev': '66', 'revelation': '66'
+        };
+
+        const defaultTemplate = `<div class="passage-header-container" contenteditable="false">
+    <h2 id="passageTitle" contenteditable="true">Insert Passage Range Here</h2>
+    <a id="cntrLink" class="cntr-external-link" href="https://greekcntr.org/collation/index.html" target="_blank" rel="noopener noreferrer" title="View manuscript collation on GreekCNTR">↗</a>
+</div>
+<div class="tags-container" contenteditable="false">
+    <button class="btn-add-tag" onclick="promptAddTag()">+ Tag</button>
+</div>
+
+<h3>1. Observation Notes</h3>
+<h4>Main Observation</h4>
+<p>Record initial observations, contextual details, and textual notes here...</p>
+
+<h3>2. Manuscript Evidence Log</h3>
+<p style="font-size: 0.95rem; color: var(--gold); font-style: italic;">Log variant readings, supporting witnesses/dates, and attestation ratings (A–D):</p>
+<div id="ms-log-container" class="ms-log-container" contenteditable="false">
+    <div class="ms-log-header-row" contenteditable="false">
+        <span>Reading</span>
+        <span>Manuscript & Date</span>
+        <span>Rating</span>
+        <span></span>
+    </div>
+    <div class="ms-log-row" contenteditable="false">
+        <div class="ms-log-field" contenteditable="true" placeholder="Reading..."></div>
+        <div class="ms-log-field" contenteditable="true" placeholder="Manuscript & Date..."></div>
+        <select class="ms-log-rating" onchange="saveActiveFile()">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+        <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.ms-log-row').remove(); saveActiveFile();">✕</button>
+    </div>
+</div>
+<button class="btn-action" contenteditable="false" onclick="addMsLogRow()">+ Add Evidence Entry</button>
+
+<h3>3. Syntactic Analysis & Diagram</h3>
+<h4>Syntactic Observations</h4>
+<p>Record clausal structures, modifiers, and grammatical relationships here...</p>
+
+<h4>Reed-Kellogg Sentence Diagram</h4>
+<p style="font-size: 0.95rem; color: var(--gold); font-style: italic;">Paste your diagram image directly below (white backgrounds are automatically made transparent):</p>
+<p><br></p>
+
+<h3>4. Application & Homiletical Outline</h3>
+<div id="blocks-container" class="blocks-container" contenteditable="false">
+    <div class="outline-block" data-indent="0">
+        <div class="block-controls" contenteditable="false">
+            <button onclick="adjustIndent(this, -1)">‹</button>
+            <button onclick="adjustIndent(this, 1)">›</button>
+        </div>
+        <div class="block-content" contenteditable="true" placeholder="Sermon point or note...">Type application point here...</div>
+        <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.outline-block').remove(); saveActiveFile();">✕</button>
+    </div>
+</div>
+<button class="btn-action" contenteditable="false" onclick="addBlock()">+ Add Application Point</button>`;
+
+        let activeFileId = null;
+        let files = {};
+
+        // 1. STORAGE MANAGEMENT
+        function initStorage() {
+            const rawFiles = localStorage.getItem(STORAGE_FILES_KEY);
+            activeFileId = localStorage.getItem(STORAGE_ACTIVE_ID_KEY);
+
+            if (rawFiles) {
+                try { files = JSON.parse(rawFiles); } catch(e) { files = {}; }
+            }
+
+            if (Object.keys(files).length === 0) {
+                const initialId = 'study_' + Date.now();
+                files[initialId] = {
+                    id: initialId,
+                    title: 'Insert Passage Range Here',
+                    tags: [],
+                    content: defaultTemplate,
+                    updatedAt: Date.now()
+                };
+                activeFileId = initialId;
+            }
+
+            if (!activeFileId || !files[activeFileId]) {
+                activeFileId = Object.keys(files)[0];
+            }
+
+            loadActiveFile();
+        }
+
+        function loadActiveFile() {
+            if (!files[activeFileId]) return;
+            let content = files[activeFileId].content;
+            
+            if (!content.includes('passage-header-container')) {
+                content = defaultTemplate;
+                files[activeFileId].content = content;
+            }
+            
+            editor.innerHTML = content;
+            
+            // Reattach event listeners to loaded select dropdowns if any exist
+            editor.querySelectorAll('.ms-log-rating').forEach(sel => {
+                sel.onchange = () => saveActiveFile();
+            });
+
+            // Bind GreekCNTR link synchronization
+            const passageTitleEl = document.getElementById('passageTitle');
+            if (passageTitleEl) {
+                passageTitleEl.addEventListener('input', updateGreekCntLink);
+                passageTitleEl.addEventListener('blur', updateGreekCntLink);
+                updateGreekCntLink();
+            }
+
+            localStorage.setItem(STORAGE_ACTIVE_ID_KEY, activeFileId);
+            renderFileList();
+        }
+
+        function saveActiveFile() {
+            if (!activeFileId) return;
+            const titleEl = document.getElementById('passageTitle');
+            const title = titleEl ? titleEl.innerText.trim() : 'Insert Passage Range Here';
+            
+            const tagNodes = editor.querySelectorAll('.tag-chip');
+            const tags = Array.from(tagNodes).map(node => node.firstChild.textContent.trim());
+
+            files[activeFileId] = {
+                id: activeFileId,
+                title: title,
+                tags: tags,
+                content: editor.innerHTML,
+                updatedAt: Date.now()
+            };
+            localStorage.setItem(STORAGE_FILES_KEY, JSON.stringify(files));
+            localStorage.setItem(STORAGE_ACTIVE_ID_KEY, activeFileId);
+            renderFileList();
+        }
+
+        function createNewStudy() {
+            saveActiveFile();
+            const newId = 'study_' + Date.now();
+            files[newId] = {
+                id: newId,
+                title: 'Insert Passage Range Here',
+                tags: [],
+                content: defaultTemplate,
+                updatedAt: Date.now()
+            };
+            activeFileId = newId;
+            loadActiveFile();
+        }
+
+        function renderFileList() {
+            const listEl = document.getElementById('file-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            Object.values(files).sort((a,b) => b.updatedAt - a.updatedAt).forEach(file => {
+                const item = document.createElement('div');
+                item.className = `file-item ${file.id === activeFileId ? 'active' : ''}`;
+                item.onclick = () => { saveActiveFile(); activeFileId = file.id; loadActiveFile(); };
+
+                const tagBadges = (file.tags || []).map(t => `<small style="color:var(--gold)">#${t}</small>`).join(' ');
+
+                item.innerHTML = `
+                    <div>
+                        <div class="file-title">${file.title}</div>
+                        <div>${tagBadges}</div>
+                    </div>
+                    <button class="btn-delete-file" onclick="deleteStudy('${file.id}', event)">✕</button>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function deleteStudy(id, e) {
+            e.stopPropagation();
+            if (Object.keys(files).length <= 1) return alert("Must retain at least one study.");
+            if (confirm("Delete study?")) {
+                delete files[id];
+                if (activeFileId === id) activeFileId = Object.keys(files)[0];
+                saveActiveFile();
+                loadActiveFile();
+            }
+        }
+
+        // Dynamic GreekCNTR Link Generator
+        function updateGreekCntLink() {
+            const titleEl = document.getElementById('passageTitle');
+            const linkEl = document.getElementById('cntrLink');
+            if (!titleEl || !linkEl) return;
+            const passageText = titleEl.innerText.trim().toLowerCase();
+
+            const match = passageText.match(/^([1-3]?\s*[a-z\s]+?)\s+(\d+)(?::(\d+))?/i);
+            
+            if (!match) {
+                linkEl.href = 'https://greekcntr.org/collation/index.html';
+                return;
+            }
+
+            const bookSpaced = match[1].trim();
+            const bookCondensed = bookSpaced.replace(/\s+/g, '');
+            const chapter = match[2];
+            const verse = match[3] || '1';
+
+            const bookCode = bookMap[bookSpaced] || bookMap[bookCondensed];
+            if (!bookCode) {
+                linkEl.href = 'https://greekcntr.org/collation/index.html';
+                return;
+            }
+
+            const ccc = chapter.padStart(3, '0');
+            const vvv = verse.padStart(3, '0');
+
+            linkEl.href = `https://greekcntr.org/collation/index.html?&v=${bookCode}${ccc}${vvv}`;
+        }
+
+        // 2. STRUCTURE FORMATTING
+        function applyStructure(tag) {
+            document.execCommand('formatBlock', false, tag);
+            saveActiveFile();
+        }
+
+        // 3. MANUSCRIPT LOG ROW MANAGEMENT
+        function addMsLogRow() {
+            const container = document.getElementById('ms-log-container');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'ms-log-row';
+            row.setAttribute('contenteditable', 'false');
+            row.innerHTML = `
+                <div class="ms-log-field" contenteditable="true" placeholder="Reading..."></div>
+                <div class="ms-log-field" contenteditable="true" placeholder="Manuscript & Date..."></div>
+                <select class="ms-log-rating" onchange="saveActiveFile()">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+                <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.ms-log-row').remove(); saveActiveFile();">✕</button>
+            `;
+            container.appendChild(row);
+            saveActiveFile();
+        }
+
+        // 4. APPLICATION OUTLINE BLOCKS MANAGEMENT
+        function addBlock() {
+            const container = document.getElementById('blocks-container');
+            if (!container) return;
+            const block = document.createElement('div');
+            block.className = 'outline-block';
+            block.setAttribute('data-indent', '0');
+            block.innerHTML = `
+                <div class="block-controls" contenteditable="false">
+                    <button onclick="adjustIndent(this, -1)">‹</button>
+                    <button onclick="adjustIndent(this, 1)">›</button>
+                </div>
+                <div class="block-content" contenteditable="true" placeholder="Sermon point or note...">Type application point here...</div>
+                <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.outline-block').remove(); saveActiveFile();">✕</button>
+            `;
+            container.appendChild(block);
+            saveActiveFile();
+        }
+
+        function adjustIndent(btn, delta) {
+            const block = btn.closest('.outline-block');
+            let indent = parseInt(block.getAttribute('data-indent')) || 0;
+            indent = Math.max(0, Math.min(2, indent + delta));
+            block.setAttribute('data-indent', indent);
+            saveActiveFile();
+        }
+
+        // 5. TRANSPARENT DIAGRAM PASTE PROCESSOR & INSPECTOR
+        editor.addEventListener('paste', function(e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        processDiagramBackground(event.target.result, function(transparentDataUrl) {
+                            insertDiagramToEditor(transparentDataUrl);
+                        });
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
+        function processDiagramBackground(imgSrc, callback) {
+            const img = new Image();
+            img.src = imgSrc;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i+1], b = data[i+2];
+                    if (r > 210 && g > 210 && b > 210) {
+                        data[i + 3] = 0;
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+                callback(canvas.toDataURL('image/png'));
+            };
+        }
+
+        function insertDiagramToEditor(dataUrl) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'diagram-wrapper';
+            wrapper.setAttribute('contenteditable', 'false');
+            wrapper.innerHTML = `
+                <img src="${dataUrl}" class="diagram-img"/>
+                <div class="diagram-controls">
+                    <button class="btn-action" onclick="openDiagramModal(this)" title="Fullscreen Inspector">🔍</button>
+                    <button class="btn-action" onclick="resizeDiagram(this, 0.8)" title="Contract Inline">-</button>
+                    <button class="btn-action" onclick="resizeDiagram(this, 1.25)" title="Expand Inline">+</button>
+                    <button class="btn-delete-file" onclick="this.closest('.diagram-wrapper').remove(); saveActiveFile();">✕</button>
+                </div>
+            `;
+            
+            const sel = window.getSelection();
+            if (sel.rangeCount) {
+                const range = sel.getRangeAt(0);
+                range.insertNode(wrapper);
+            } else {
+                editor.appendChild(wrapper);
+            }
+            saveActiveFile();
+        }
+
+        function resizeDiagram(btn, factor) {
+            const img = btn.closest('.diagram-wrapper').querySelector('img');
+            const currentWidth = img.clientWidth || img.offsetWidth;
+            img.style.maxWidth = 'none';
+            img.style.width = Math.round(currentWidth * factor) + 'px';
+            saveActiveFile();
+        }
+
+        // FULLSCREEN DIAGRAM INSPECTOR MODAL LOGIC
+        let modalZoom = 1;
+        let isDragging = false;
+        let startX, startY, scrollLeft, scrollTop;
+
+        function openDiagramModal(btn) {
+            const img = btn.closest('.diagram-wrapper').querySelector('img');
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = img.src;
+            modalZoom = 1;
+            updateModalZoom();
+            document.getElementById('diagramModal').classList.add('active');
+        }
+
+        function closeDiagramModal() {
+            document.getElementById('diagramModal').classList.remove('active');
+        }
+
+        function zoomModal(factor) {
+            modalZoom = Math.max(0.4, Math.min(5, modalZoom * factor));
+            updateModalZoom();
+        }
+
+        function resetModalZoom() {
+            modalZoom = 1;
+            updateModalZoom();
+        }
+
+        function updateModalZoom() {
+            const modalImg = document.getElementById('modalImage');
+            modalImg.style.transform = `scale(${modalZoom})`;
+        }
+
+        const viewport = document.getElementById('modalViewport');
+        viewport.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - viewport.offsetLeft;
+            startY = e.pageY - viewport.offsetTop;
+            scrollLeft = viewport.scrollLeft;
+            scrollTop = viewport.scrollTop;
+        });
+        viewport.addEventListener('mouseleave', () => isDragging = false);
+        viewport.addEventListener('mouseup', () => isDragging = false);
+        viewport.addEventListener('mousemove', (e) => {
+            if(!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - viewport.offsetLeft;
+            const y = e.pageY - viewport.offsetTop;
+            viewport.scrollLeft = scrollLeft - (x - startX) * 1.5;
+            viewport.scrollTop = scrollTop - (y - startY) * 1.5;
+        });
+
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) zoomModal(1.15);
+            else zoomModal(0.85);
+        }, { passive: false });
+
+        // 6. LANGUAGE & FONT FORMATTING
+        function applyFont(fontType) {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+
+            if (fontType === 'greek') {
+                document.execCommand('formatBlock', false, 'p');
+                const parent = sel.anchorNode.parentElement;
+                parent.classList.add('lang-greek');
+                parent.classList.remove('lang-hebrew');
+            } else if (fontType === 'hebrew') {
+                document.execCommand('formatBlock', false, 'p');
+                const parent = sel.anchorNode.parentElement;
+                parent.classList.add('lang-hebrew');
+                parent.classList.remove('lang-greek');
+            } else {
+                const parent = sel.anchorNode.parentElement;
+                parent.classList.remove('lang-greek', 'lang-hebrew');
+            }
+            saveActiveFile();
+        }
+
+        // 7. TAG MANAGEMENT
+        function promptAddTag() {
+            const tag = prompt("Enter new tag/topic (e.g., Syntax, Covenant):");
+            if (tag) {
+                const container = editor.querySelector('.tags-container');
+                const btn = container.querySelector('.btn-add-tag');
+                const chip = document.createElement('span');
+                chip.className = 'tag-chip';
+                chip.innerHTML = `${tag} <span class="remove-tag" onclick="removeTag(this)">✕</span>`;
+                container.insertBefore(chip, btn);
+                saveActiveFile();
+            }
+        }
+
+        function removeTag(el) {
+            el.closest('.tag-chip').remove();
+            saveActiveFile();
+        }
+
+        // 8. THEME SWITCHER
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // 9. HELPER FORMATTING & EXPORT
+        function applyTextColor(color) { document.execCommand('foreColor', false, color); saveActiveFile(); }
+        function applyHighlight(color) {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const span = document.createElement('span');
+            span.className = `marker ${color}`;
+            sel.getRangeAt(0).surroundContents(span);
+            saveActiveFile();
+        }
+        function clearFormatting() { document.execCommand('removeFormat', false, null); saveActiveFile(); }
+
+        function toggleMenu(id, e) {
+            e.stopPropagation();
+            document.getElementById(id).classList.toggle('show');
+        }
+        document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show')));
+
+        // Drawer Toggle Logic
+        function toggleDrawer() {
+            const drawer = document.getElementById('ms-drawer');
+            const editorContainer = document.getElementById('main-editor-container');
+            
+            drawer.classList.toggle('open');
+            
+            if (drawer.classList.contains('open') && window.innerWidth > 1000) {
+                 editorContainer.style.marginRight = '600px';
+            } else {
+                 editorContainer.style.marginRight = '0';
+            }
+        }
+        
+        // Export to PDF
+        function exportToPDF() {
+            const element = document.getElementById('editor');
+            const opt = {
+              margin:       10,
+              filename:     'Bible_Study_Notes.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2 },
+              jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+    </script>
+</body>
+</html>
