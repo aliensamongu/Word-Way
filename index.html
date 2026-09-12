@@ -331,6 +331,26 @@
             z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
         }
         .diagram-modal.active { display: flex; }
+        
+        /* New Rating Guidelines Modal Styles */
+        .rating-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(8px);
+            z-index: 1000; justify-content: center; align-items: center;
+        }
+        .rating-modal.active { display: flex; }
+        .rating-card {
+            background: #ffffff; border: 2px solid var(--gold); border-radius: 12px;
+            padding: 24px; max-width: 650px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            font-family: 'Inter', sans-serif; position: relative; max-height: 85vh; overflow-y: auto;
+        }
+        .rating-card h3 { color: var(--royal-blue); margin-top: 0; border-bottom: 2px solid var(--gold); padding-bottom: 8px; font-size: 1.4rem; }
+        .rating-card h4 { color: var(--royal-blue); margin-bottom: 6px; margin-top: 18px; font-size: 1.1rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+        .rating-card ul { margin-top: 6px; padding-left: 20px; font-size: 0.95rem; color: #1e293b; line-height: 1.5; }
+        .rating-card li { margin-bottom: 8px; }
+        .rating-close { position: absolute; top: 16px; right: 16px; background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8; }
+        .rating-close:hover { color: #ef4444; }
+
         .modal-toolbar {
             position: absolute; top: 20px; display: flex; gap: 8px; align-items: center;
             background: #ffffff; padding: 6px 16px; border-radius: 100px;
@@ -431,7 +451,7 @@
         }
 
         @media print {
-            .toolbar, .diagram-controls, .btn-add-tag, .remove-tag, .diagram-modal, #ms-drawer, .btn-drawer { display: none !important; }
+            .toolbar, .diagram-controls, .btn-add-tag, .remove-tag, .diagram-modal, #ms-drawer, .btn-drawer, .rating-modal { display: none !important; }
             #editor { box-shadow: none; border: none; padding: 0; width: 100%; }
         }
     </style>
@@ -529,48 +549,48 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td>P52</td><td>Rylands Library Papyrus P52</td><td>2nd</td><td>c. 125–150 AD</td><td>John 18:31-33, 37-38 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P46</td><td>Chester Beatty II</td><td>2nd / 3rd</td><td>c. 175–225 AD</td><td>Pauline Epistles, Hebrews (Papyrus codex)[cite: 1]</td></tr>
-                <tr><td>P66</td><td>Bodmer II</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Gospel of John (Nearly complete papyrus codex)[cite: 1]</td></tr>
-                <tr><td>P45</td><td>Chester Beatty I</td><td>3rd</td><td>c. 250 AD</td><td>Gospels and Acts (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P47</td><td>Chester Beatty III</td><td>3rd</td><td>c. 250–300 AD</td><td>Revelation (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P72</td><td>Bodmer VII and VIII</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Jude, 1 and 2 Peter (Papyrus codex)[cite: 1]</td></tr>
-                <tr><td>P75</td><td>Bodmer XIV–XV</td><td>3rd / 4th</td><td>c. 175–225 AD</td><td>Luke and John (Papyrus codex)[cite: 1]</td></tr>
-                <tr><td>P1</td><td>Oxyrhynchus 2</td><td>3rd</td><td>c. 250 AD</td><td>Matthew 1:1-9, 12, 14-20 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P4</td><td>Paris, Bibl. Nat., Suppl. Gr. 1120</td><td>3rd</td><td>c. 200-250 AD</td><td>Luke 1, 5, 6 (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P5</td><td>Oxyrhynchus 208 + 1781</td><td>3rd</td><td>c. 250 AD</td><td>John 1, 16, 20 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P13</td><td>Oxyrhynchus 657 + PSI 1292</td><td>3rd / 4th</td><td>c. 250-300 AD</td><td>Hebrews (Papyrus scroll)[cite: 1]</td></tr>
-                <tr><td>P22</td><td>Oxyrhynchus 1228</td><td>3rd</td><td>c. 250 AD</td><td>John 15-16 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P23</td><td>Oxyrhynchus 1229</td><td>3rd</td><td>c. 200-250 AD</td><td>James 1:10-12, 15-18 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P27</td><td>Oxyrhynchus 1355</td><td>3rd</td><td>c. 250 AD</td><td>Romans 8-9 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P28</td><td>Oxyrhynchus 1596</td><td>3rd</td><td>c. 250 AD</td><td>John 6:8-12, 17-22 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P29</td><td>Oxyrhynchus 1597</td><td>3rd</td><td>c. 200-250 AD</td><td>Acts 26:7-8, 20 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P30</td><td>Oxyrhynchus 1598</td><td>3rd</td><td>c. 250 AD</td><td>1 &amp; 2 Thessalonians (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P32</td><td>Rylands Papyrus 5</td><td>2nd</td><td>c. 150-200 AD</td><td>Titus 1:11-15; 2:3-8 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P37</td><td>Michigan Inv. 1570</td><td>3rd</td><td>c. 250-300 AD</td><td>Matthew 26:19-52 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P38</td><td>Michigan Inv. 1571</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Acts 18:27-19:6, 12-16 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P39</td><td>Oxyrhynchus 1780</td><td>3rd</td><td>c. 250 AD</td><td>John 8:14-22 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P40</td><td>Heidelberg Inv. 45</td><td>3rd</td><td>c. 250 AD</td><td>Romans (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P48</td><td>Florence, PSI 1165</td><td>3rd</td><td>c. 250 AD</td><td>Acts 23:11-17, 23-29 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P49</td><td>Yale Inv. 415</td><td>3rd</td><td>c. 250 AD</td><td>Ephesians 4:16-29, 4:31-5:13 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P53</td><td>Michigan Inv. 6652</td><td>3rd</td><td>c. 250 AD</td><td>Matthew, Acts fragments (Papyrus)[cite: 1]</td></tr>
-                <tr><td>P64 / P67</td><td>Magdalen Gr. 17 + Barcelona</td><td>2nd</td><td>c. 175-200 AD</td><td>Matthew 3, 5, 26 (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P69</td><td>Oxyrhynchus 2383</td><td>3rd</td><td>c. 250 AD</td><td>Luke 22:41, 45-48, 58-61 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P70</td><td>Oxyrhynchus 2384 + PSI 3407</td><td>3rd</td><td>c. 250 AD</td><td>Matthew fragments (Papyrus)[cite: 1]</td></tr>
-                <tr><td>P77</td><td>Oxyrhynchus 2683 + 4405</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Matthew 23 (Papyrus fragments)[cite: 1]</td></tr>
-                <tr><td>P90</td><td>Oxyrhynchus 3523</td><td>2nd</td><td>c. 150-200 AD</td><td>John 18:36-19:7 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P92</td><td>PNob 1</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Ephesians, 2 Thessalonians fragments (Papyrus)[cite: 1]</td></tr>
-                <tr><td>P95</td><td>PLaur Inv. II/31</td><td>3rd</td><td>c. 200-250 AD</td><td>John 5:26-29, 36-38 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P98</td><td>P.IFAO inv. 237b</td><td>2nd</td><td>c. 150-175 AD</td><td>Revelation 1:13-20 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P104</td><td>Oxyrhynchus 4404</td><td>2nd</td><td>c. 150 AD</td><td>Matthew 21:34-37, 43, 45 (Papyrus fragment)[cite: 1]</td></tr>
-                <tr><td>P115</td><td>Oxyrhynchus 4499</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Revelation fragments (Papyrus)[cite: 1]</td></tr>
-                <tr><td>Aleph (01)</td><td>Codex Sinaiticus</td><td>4th</td><td>c. 330–360 AD</td><td>Complete New Testament (Parchment)[cite: 1]</td></tr>
-                <tr><td>A (02)</td><td>Codex Alexandrinus</td><td>5th</td><td>c. 400–450 AD</td><td>Almost complete New Testament (Parchment)[cite: 1]</td></tr>
-                <tr><td>B (03)</td><td>Codex Vaticanus</td><td>4th</td><td>c. 325–350 AD</td><td>Nearly complete Greek Bible (Parchment)[cite: 1]</td></tr>
-                <tr><td>C (04)</td><td>Codex Ephraemi Rescriptus</td><td>5th</td><td>c. 450 AD</td><td>Palimpsest with ~66% of NT (Parchment)[cite: 1]</td></tr>
-                <tr><td>D (05)</td><td>Codex Bezae</td><td>5th</td><td>c. 400-450 AD</td><td>Gospels and Acts, bilingual Greek/Latin (Parchment)[cite: 1]</td></tr>
-                <tr><td>W (032)</td><td>Codex Washingtonianus</td><td>4th / 5th</td><td>c. 400 AD</td><td>Four Gospels (Parchment)[cite: 1]</td></tr>
-                <tr><td>0189</td><td>Berlin, Staatl. Mus. P. 11765</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Acts 5:3-21 (Earliest parchment uncial fragment)[cite: 1]</td></tr>
+                <tr><td>P52</td><td>Rylands Library Papyrus P52</td><td>2nd</td><td>c. 125–150 AD</td><td>John 18:31-33, 37-38 (Papyrus fragment)</td></tr>
+                <tr><td>P46</td><td>Chester Beatty II</td><td>2nd / 3rd</td><td>c. 175–225 AD</td><td>Pauline Epistles, Hebrews (Papyrus codex)</td></tr>
+                <tr><td>P66</td><td>Bodmer II</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Gospel of John (Nearly complete papyrus codex)</td></tr>
+                <tr><td>P45</td><td>Chester Beatty I</td><td>3rd</td><td>c. 250 AD</td><td>Gospels and Acts (Papyrus fragments)</td></tr>
+                <tr><td>P47</td><td>Chester Beatty III</td><td>3rd</td><td>c. 250–300 AD</td><td>Revelation (Papyrus fragments)</td></tr>
+                <tr><td>P72</td><td>Bodmer VII and VIII</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Jude, 1 and 2 Peter (Papyrus codex)</td></tr>
+                <tr><td>P75</td><td>Bodmer XIV–XV</td><td>3rd / 4th</td><td>c. 175–225 AD</td><td>Luke and John (Papyrus codex)</td></tr>
+                <tr><td>P1</td><td>Oxyrhynchus 2</td><td>3rd</td><td>c. 250 AD</td><td>Matthew 1:1-9, 12, 14-20 (Papyrus fragment)</td></tr>
+                <tr><td>P4</td><td>Paris, Bibl. Nat., Suppl. Gr. 1120</td><td>3rd</td><td>c. 200-250 AD</td><td>Luke 1, 5, 6 (Papyrus fragments)</td></tr>
+                <tr><td>P5</td><td>Oxyrhynchus 208 + 1781</td><td>3rd</td><td>c. 250 AD</td><td>John 1, 16, 20 (Papyrus fragment)</td></tr>
+                <tr><td>P13</td><td>Oxyrhynchus 657 + PSI 1292</td><td>3rd / 4th</td><td>c. 250-300 AD</td><td>Hebrews (Papyrus scroll)</td></tr>
+                <tr><td>P22</td><td>Oxyrhynchus 1228</td><td>3rd</td><td>c. 250 AD</td><td>John 15-16 (Papyrus fragment)</td></tr>
+                <tr><td>P23</td><td>Oxyrhynchus 1229</td><td>3rd</td><td>c. 200-250 AD</td><td>James 1:10-12, 15-18 (Papyrus fragment)</td></tr>
+                <tr><td>P27</td><td>Oxyrhynchus 1355</td><td>3rd</td><td>c. 250 AD</td><td>Romans 8-9 (Papyrus fragment)</td></tr>
+                <tr><td>P28</td><td>Oxyrhynchus 1596</td><td>3rd</td><td>c. 250 AD</td><td>John 6:8-12, 17-22 (Papyrus fragment)</td></tr>
+                <tr><td>P29</td><td>Oxyrhynchus 1597</td><td>3rd</td><td>c. 200-250 AD</td><td>Acts 26:7-8, 20 (Papyrus fragment)</td></tr>
+                <tr><td>P30</td><td>Oxyrhynchus 1598</td><td>3rd</td><td>c. 250 AD</td><td>1 &amp; 2 Thessalonians (Papyrus fragments)</td></tr>
+                <tr><td>P32</td><td>Rylands Papyrus 5</td><td>2nd</td><td>c. 150-200 AD</td><td>Titus 1:11-15; 2:3-8 (Papyrus fragment)</td></tr>
+                <tr><td>P37</td><td>Michigan Inv. 1570</td><td>3rd</td><td>c. 250-300 AD</td><td>Matthew 26:19-52 (Papyrus fragment)</td></tr>
+                <tr><td>P38</td><td>Michigan Inv. 1571</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Acts 18:27-19:6, 12-16 (Papyrus fragment)</td></tr>
+                <tr><td>P39</td><td>Oxyrhynchus 1780</td><td>3rd</td><td>c. 250 AD</td><td>John 8:14-22 (Papyrus fragment)</td></tr>
+                <tr><td>P40</td><td>Heidelberg Inv. 45</td><td>3rd</td><td>c. 250 AD</td><td>Romans (Papyrus fragments)</td></tr>
+                <tr><td>P48</td><td>Florence, PSI 1165</td><td>3rd</td><td>c. 250 AD</td><td>Acts 23:11-17, 23-29 (Papyrus fragment)</td></tr>
+                <tr><td>P49</td><td>Yale Inv. 415</td><td>3rd</td><td>c. 250 AD</td><td>Ephesians 4:16-29, 4:31-5:13 (Papyrus fragment)</td></tr>
+                <tr><td>P53</td><td>Michigan Inv. 6652</td><td>3rd</td><td>c. 250 AD</td><td>Matthew, Acts fragments (Papyrus)</td></tr>
+                <tr><td>P64 / P67</td><td>Magdalen Gr. 17 + Barcelona</td><td>2nd</td><td>c. 175-200 AD</td><td>Matthew 3, 5, 26 (Papyrus fragments)</td></tr>
+                <tr><td>P69</td><td>Oxyrhynchus 2383</td><td>3rd</td><td>c. 250 AD</td><td>Luke 22:41, 45-48, 58-61 (Papyrus fragment)</td></tr>
+                <tr><td>P70</td><td>Oxyrhynchus 2384 + PSI 3407</td><td>3rd</td><td>c. 250 AD</td><td>Matthew fragments (Papyrus)</td></tr>
+                <tr><td>P77</td><td>Oxyrhynchus 2683 + 4405</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Matthew 23 (Papyrus fragments)</td></tr>
+                <tr><td>P90</td><td>Oxyrhynchus 3523</td><td>2nd</td><td>c. 150-200 AD</td><td>John 18:36-19:7 (Papyrus fragment)</td></tr>
+                <tr><td>P92</td><td>PNob 1</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Ephesians, 2 Thessalonians fragments (Papyrus)</td></tr>
+                <tr><td>P95</td><td>PLaur Inv. II/31</td><td>3rd</td><td>c. 200-250 AD</td><td>John 5:26-29, 36-38 (Papyrus fragment)</td></tr>
+                <tr><td>P98</td><td>P.IFAO inv. 237b</td><td>2nd</td><td>c. 150-175 AD</td><td>Revelation 1:13-20 (Papyrus fragment)</td></tr>
+                <tr><td>P104</td><td>Oxyrhynchus 4404</td><td>2nd</td><td>c. 150 AD</td><td>Matthew 21:34-37, 43, 45 (Papyrus fragment)</td></tr>
+                <tr><td>P115</td><td>Oxyrhynchus 4499</td><td>3rd / 4th</td><td>c. 300 AD</td><td>Revelation fragments (Papyrus)</td></tr>
+                <tr><td>Aleph (01)</td><td>Codex Sinaiticus</td><td>4th</td><td>c. 330–360 AD</td><td>Complete New Testament (Parchment)</td></tr>
+                <tr><td>A (02)</td><td>Codex Alexandrinus</td><td>5th</td><td>c. 400–450 AD</td><td>Almost complete New Testament (Parchment)</td></tr>
+                <tr><td>B (03)</td><td>Codex Vaticanus</td><td>4th</td><td>c. 325–350 AD</td><td>Nearly complete Greek Bible (Parchment)</td></tr>
+                <tr><td>C (04)</td><td>Codex Ephraemi Rescriptus</td><td>5th</td><td>c. 450 AD</td><td>Palimpsest with ~66% of NT (Parchment)</td></tr>
+                <tr><td>D (05)</td><td>Codex Bezae</td><td>5th</td><td>c. 400-450 AD</td><td>Gospels and Acts, bilingual Greek/Latin (Parchment)</td></tr>
+                <tr><td>W (032)</td><td>Codex Washingtonianus</td><td>4th / 5th</td><td>c. 400 AD</td><td>Four Gospels (Parchment)</td></tr>
+                <tr><td>0189</td><td>Berlin, Staatl. Mus. P. 11765</td><td>2nd / 3rd</td><td>c. 200 AD</td><td>Acts 5:3-21 (Earliest parchment uncial fragment)</td></tr>
               </tbody>
             </table>
         </div>
@@ -578,6 +598,37 @@
 
     <div class="editor-container" id="main-editor-container">
         <div id="editor" contenteditable="true"></div>
+    </div>
+
+    <!-- Rating Guidelines Modal -->
+    <div id="ratingGuideModal" class="rating-modal">
+        <div class="rating-card">
+            <button class="rating-close" onclick="closeRatingGuide()">✕</button>
+            <h3>Textual Certainty Guidelines</h3>
+            <p style="font-size: 0.95rem; margin-top: -10px; margin-bottom: 20px; color: var(--gold);">Use these criteria to evaluate variants and assign a rating (A–D).</p>
+            
+            <h4>1. External Evidence (The Manuscripts)</h4>
+            <ul>
+                <li><strong>Date & Age:</strong> Earlier witnesses generally carry more weight, as they are closer to the autograph.</li>
+                <li><strong>Geographical Distribution:</strong> A reading supported by manuscripts from diverse regions (e.g., Alexandrian, Western, Byzantine) is usually stronger than one isolated to a single geographic area.</li>
+                <li><strong>Text-Type Reliability:</strong> Alexandrian manuscripts (e.g., Sinaiticus, Vaticanus, P75) are traditionally considered highly reliable, but must be weighed holistically against other families.</li>
+            </ul>
+
+            <h4>2. Internal Evidence (Scribal Habits)</h4>
+            <ul>
+                <li><strong>Shorter Reading <em>(Lectio Brevior)</em>:</strong> Scribes were far more likely to add explanatory text (glosses) than to intentionally delete original text.</li>
+                <li><strong>Harder Reading <em>(Lectio Difficilior)</em>:</strong> Scribes often "smoothed out" difficult grammar, apparent contradictions, or harsh theological statements. The rougher reading is often original.</li>
+                <li><strong>Harmonization:</strong> Scribes tended to alter passages to match parallel accounts, a common occurrence in the Synoptic Gospels.</li>
+            </ul>
+
+            <h4>UBS Ratings Scale</h4>
+            <ul style="list-style-type: none; padding-left: 0;">
+                <li><strong style="color: var(--royal-blue);">A:</strong> Virtually certain (strong external and internal support).</li>
+                <li><strong style="color: var(--royal-blue);">B:</strong> Highly probable, but some doubt remains.</li>
+                <li><strong style="color: var(--royal-blue);">C:</strong> Difficult to decide; evidence is evenly split.</li>
+                <li><strong style="color: var(--royal-blue);">D:</strong> Very uncertain; the original text is highly debatable.</li>
+            </ul>
+        </div>
     </div>
 
     <!-- Interactive Diagram Inspector Modal -->
@@ -598,6 +649,50 @@
         const editor = document.getElementById('editor');
         const STORAGE_FILES_KEY = 'bible_study_files_v10';
         const STORAGE_ACTIVE_ID_KEY = 'bible_study_active_id_v10';
+
+        // NOTE: Default template updated to include the info button in the header row
+        const defaultTemplate = `<div class="passage-header-container" contenteditable="false">
+    <h2 id="passageTitle" contenteditable="true">Insert Passage Range Here</h2>
+    <a id="cntrLink" class="cntr-external-link" href="https://greekcntr.org/collation/index.html" target="_blank" rel="noopener noreferrer" title="View manuscript collation on GreekCNTR">↗</a>
+</div>
+<div class="tags-container" contenteditable="false">
+    <button class="btn-add-tag" onclick="promptAddTag()">+ Tag</button>
+</div>
+
+<h3>1. Observation Notes</h3>
+<h4>Main Observation</h4>
+<p>Record initial observations, contextual details, and textual notes here...</p>
+
+<h3>2. Manuscript Evidence Log</h3>
+<p style="font-size: 0.95rem; color: var(--gold); font-style: italic;">Log variant readings, supporting witnesses/dates, and attestation ratings (A–D):</p>
+<div id="ms-log-container" class="ms-log-container" contenteditable="false">
+    <div class="ms-log-header-row" contenteditable="false">
+        <span>Reading</span>
+        <span>Manuscript & Date</span>
+        <span>Rating <button class="btn-delete-file" style="cursor:pointer; font-size:1rem; padding:0 4px;" onclick="openRatingGuide()" title="Rating Guidelines" contenteditable="false">ℹ️</button></span>
+        <span></span>
+    </div>
+    <div class="ms-log-row" contenteditable="false">
+        <div class="ms-log-field" contenteditable="true" placeholder="Reading..."></div>
+        <div class="ms-log-field" contenteditable="true" placeholder="Manuscript & Date..."></div>
+        <select class="ms-log-rating" onchange="saveActiveFile()">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+        <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.ms-log-row').remove(); saveActiveFile();">✕</button>
+    </div>
+</div>
+<button class="btn-action" contenteditable="false" onclick="addMsLogRow()">+ Add Evidence Entry</button>
+
+<h3>3. Grammatical & Structural Analysis</h3>
+<h4>Syntax & Structure</h4>
+<p>Analyze grammatical relationships, main verbs, clause structures, and key modifiers...</p>
+
+<h3>4. Synthesis & Application</h3>
+<h4>Exposition</h4>
+<p>Summarize the passage's primary theological message and practical application...</p>`;
 
         const bookMap = {
             'matt': '40', 'matthew': '40',
@@ -629,227 +724,229 @@
             'rev': '66', 'revelation': '66'
         };
 
-        const defaultTemplate = `<div class="passage-header-container" contenteditable="false">
-    <h2 id="passageTitle" contenteditable="true">Insert Passage Range Here</h2>
-    <a id="cntrLink" class="cntr-external-link" href="https://greekcntr.org/collation/index.html" target="_blank" rel="noopener noreferrer" title="View manuscript collation on GreekCNTR">↗</a>
-</div>
-<div class="tags-container" contenteditable="false">
-    <button class="btn-add-tag" onclick="promptAddTag()">+ Tag</button>
-</div>
-
-<h3>1. Observation Notes</h3>
-<h4>Main Observation</h4>
-<p>Record initial observations, contextual details, and textual notes here...</p>
-
-<h3>2. Manuscript Evidence Log</h3>
-<p style="font-size: 0.95rem; color: var(--gold); font-style: italic;">Log variant readings, supporting witnesses/dates, and attestation ratings (A–D):</p>
-<div id="ms-log-container" class="ms-log-container" contenteditable="false">
-    <div class="ms-log-header-row" contenteditable="false">
-        <span>Reading</span>
-        <span>Manuscript & Date</span>
-        <span>Rating</span>
-        <span></span>
-    </div>
-    <div class="ms-log-row" contenteditable="false">
-        <div class="ms-log-field" contenteditable="true" placeholder="Reading..."></div>
-        <div class="ms-log-field" contenteditable="true" placeholder="Manuscript & Date..."></div>
-        <select class="ms-log-rating" onchange="saveActiveFile()">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-        </select>
-        <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.ms-log-row').remove(); saveActiveFile();">✕</button>
-    </div>
-</div>
-<button class="btn-action" contenteditable="false" onclick="addMsLogRow()">+ Add Evidence Entry</button>
-
-<h3>3. Syntactic Analysis & Diagram</h3>
-<h4>Syntactic Observations</h4>
-<p>Record clausal structures, modifiers, and grammatical relationships here...</p>
-
-<h4>Reed-Kellogg Sentence Diagram</h4>
-<p style="font-size: 0.95rem; color: var(--gold); font-style: italic;">Paste your diagram image directly below (white backgrounds are automatically made transparent):</p>
-<p><br></p>
-
-<h3>4. Application & Homiletical Outline</h3>
-<div id="blocks-container" class="blocks-container" contenteditable="false">
-    <div class="outline-block" data-indent="0">
-        <div class="block-controls" contenteditable="false">
-            <button onclick="adjustIndent(this, -1)">‹</button>
-            <button onclick="adjustIndent(this, 1)">›</button>
-        </div>
-        <div class="block-content" contenteditable="true" placeholder="Sermon point or note...">Type application point here...</div>
-        <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.outline-block').remove(); saveActiveFile();">✕</button>
-    </div>
-</div>
-<button class="btn-action" contenteditable="false" onclick="addBlock()">+ Add Application Point</button>`;
-
-        let activeFileId = null;
-        let files = {};
-
-        // 1. STORAGE MANAGEMENT
-        function initStorage() {
-            const rawFiles = localStorage.getItem(STORAGE_FILES_KEY);
-            activeFileId = localStorage.getItem(STORAGE_ACTIVE_ID_KEY);
-
-            if (rawFiles) {
-                try { files = JSON.parse(rawFiles); } catch(e) { files = {}; }
-            }
-
-            if (Object.keys(files).length === 0) {
-                const initialId = 'study_' + Date.now();
-                files[initialId] = {
-                    id: initialId,
-                    title: 'Insert Passage Range Here',
-                    tags: [],
-                    content: defaultTemplate,
-                    updatedAt: Date.now()
-                };
-                activeFileId = initialId;
-            }
-
-            if (!activeFileId || !files[activeFileId]) {
-                activeFileId = Object.keys(files)[0];
-            }
-
-            loadActiveFile();
+        function getFiles() {
+            return JSON.parse(localStorage.getItem(STORAGE_FILES_KEY) || '{}');
         }
 
-        function loadActiveFile() {
-            if (!files[activeFileId]) return;
-            let content = files[activeFileId].content;
-            
-            if (!content.includes('passage-header-container')) {
-                content = defaultTemplate;
-                files[activeFileId].content = content;
-            }
-            
-            editor.innerHTML = content;
-            
-            // Reattach event listeners to loaded select dropdowns if any exist
-            editor.querySelectorAll('.ms-log-rating').forEach(sel => {
-                sel.onchange = () => saveActiveFile();
-            });
+        function saveFiles(files) {
+            localStorage.setItem(STORAGE_FILES_KEY, JSON.stringify(files));
+        }
 
-            // Bind GreekCNTR link synchronization
-            const passageTitleEl = document.getElementById('passageTitle');
-            if (passageTitleEl) {
-                passageTitleEl.addEventListener('input', updateGreekCntLink);
-                passageTitleEl.addEventListener('blur', updateGreekCntLink);
-                updateGreekCntLink();
-            }
+        function getActiveId() {
+            return localStorage.getItem(STORAGE_ACTIVE_ID_KEY);
+        }
 
-            localStorage.setItem(STORAGE_ACTIVE_ID_KEY, activeFileId);
+        function setActiveId(id) {
+            localStorage.setItem(STORAGE_ACTIVE_ID_KEY, id);
+        }
+
+        function initStorage() {
+            let files = getFiles();
+            let activeId = getActiveId();
+            if (Object.keys(files).length === 0) {
+                const id = 'study_' + Date.now();
+                files[id] = { id: id, title: 'Untitled Passage Study', content: defaultTemplate };
+                saveFiles(files);
+                setActiveId(id);
+                activeId = id;
+            }
+            if (!activeId || !files[activeId]) {
+                activeId = Object.keys(files)[0];
+                setActiveId(activeId);
+            }
+            loadFile(activeId);
             renderFileList();
+            attachEditorListeners();
+        }
+
+        function loadFile(id) {
+            const files = getFiles();
+            if (!files[id]) return;
+            setActiveId(id);
+            editor.innerHTML = files[id].content;
+            
+            // Auto-update script: Injects the button into old, already-saved files
+            const headerRow = editor.querySelector('.ms-log-header-row');
+            if (headerRow) {
+                const ratingSpan = headerRow.children[2];
+                if (ratingSpan && !ratingSpan.innerHTML.includes('ℹ️')) {
+                    ratingSpan.innerHTML = 'Rating <button class="btn-delete-file" style="cursor:pointer; font-size:1rem; padding:0 4px;" onclick="openRatingGuide()" title="Rating Guidelines" contenteditable="false">ℹ️</button>';
+                    saveActiveFile(); // Save the patch silently
+                }
+            }
+
+            renderFileList();
+            attachPassageListener();
         }
 
         function saveActiveFile() {
-            if (!activeFileId) return;
+            const activeId = getActiveId();
+            if (!activeId) return;
+            const files = getFiles();
             const titleEl = document.getElementById('passageTitle');
-            const title = titleEl ? titleEl.innerText.trim() : 'Insert Passage Range Here';
+            const title = titleEl ? (titleEl.innerText.trim() || 'Untitled Study') : 'Untitled Study';
             
-            const tagNodes = editor.querySelectorAll('.tag-chip');
-            const tags = Array.from(tagNodes).map(node => node.firstChild.textContent.trim());
+            const ratings = editor.querySelectorAll('.ms-log-rating');
+            ratings.forEach(sel => {
+                const val = sel.value;
+                Array.from(sel.options).forEach(opt => {
+                    if (opt.value === val) opt.setAttribute('selected', 'selected');
+                    else opt.removeAttribute('selected');
+                });
+            });
 
-            files[activeFileId] = {
-                id: activeFileId,
+            files[activeId] = {
+                id: activeId,
                 title: title,
-                tags: tags,
-                content: editor.innerHTML,
-                updatedAt: Date.now()
+                content: editor.innerHTML
             };
-            localStorage.setItem(STORAGE_FILES_KEY, JSON.stringify(files));
-            localStorage.setItem(STORAGE_ACTIVE_ID_KEY, activeFileId);
+            saveFiles(files);
             renderFileList();
         }
 
         function createNewStudy() {
-            saveActiveFile();
-            const newId = 'study_' + Date.now();
-            files[newId] = {
-                id: newId,
-                title: 'Insert Passage Range Here',
-                tags: [],
-                content: defaultTemplate,
-                updatedAt: Date.now()
-            };
-            activeFileId = newId;
-            loadActiveFile();
+            const files = getFiles();
+            const id = 'study_' + Date.now();
+            files[id] = { id: id, title: 'New Passage Study', content: defaultTemplate };
+            saveFiles(files);
+            loadFile(id);
+        }
+
+        function deleteFile(id, event) {
+            if (event) event.stopPropagation();
+            let files = getFiles();
+            delete files[id];
+            saveFiles(files);
+            const keys = Object.keys(files);
+            if (keys.length === 0) {
+                createNewStudy();
+            } else {
+                loadFile(keys[0]);
+            }
         }
 
         function renderFileList() {
-            const listEl = document.getElementById('file-list');
-            if (!listEl) return;
-            listEl.innerHTML = '';
-
-            Object.values(files).sort((a,b) => b.updatedAt - a.updatedAt).forEach(file => {
+            const files = getFiles();
+            const activeId = getActiveId();
+            const fileListEl = document.getElementById('file-list');
+            if (!fileListEl) return;
+            fileListEl.innerHTML = '';
+            Object.values(files).forEach(f => {
                 const item = document.createElement('div');
-                item.className = `file-item ${file.id === activeFileId ? 'active' : ''}`;
-                item.onclick = () => { saveActiveFile(); activeFileId = file.id; loadActiveFile(); };
-
-                const tagBadges = (file.tags || []).map(t => `<small style="color:var(--gold)">#${t}</small>`).join(' ');
-
-                item.innerHTML = `
-                    <div>
-                        <div class="file-title">${file.title}</div>
-                        <div>${tagBadges}</div>
-                    </div>
-                    <button class="btn-delete-file" onclick="deleteStudy('${file.id}', event)">✕</button>
-                `;
-                listEl.appendChild(item);
+                item.className = 'file-item' + (f.id === activeId ? ' active' : '');
+                item.onclick = () => loadFile(f.id);
+                
+                const span = document.createElement('span');
+                span.className = 'file-title';
+                span.textContent = f.title || 'Untitled Study';
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-delete-file';
+                delBtn.innerHTML = '✕';
+                delBtn.onclick = (e) => deleteFile(f.id, e);
+                
+                item.appendChild(span);
+                item.appendChild(delBtn);
+                fileListEl.appendChild(item);
             });
         }
 
-        function deleteStudy(id, e) {
-            e.stopPropagation();
-            if (Object.keys(files).length <= 1) return alert("Must retain at least one study.");
-            if (confirm("Delete study?")) {
-                delete files[id];
-                if (activeFileId === id) activeFileId = Object.keys(files)[0];
-                saveActiveFile();
-                loadActiveFile();
-            }
+        function toggleMenu(menuId, event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById(menuId);
+            if (menu) menu.classList.toggle('show');
         }
 
-        // Dynamic GreekCNTR Link Generator
-        function updateGreekCntLink() {
-            const titleEl = document.getElementById('passageTitle');
-            const linkEl = document.getElementById('cntrLink');
-            if (!titleEl || !linkEl) return;
-            const passageText = titleEl.innerText.trim().toLowerCase();
+        document.addEventListener('click', () => {
+            const menus = document.querySelectorAll('.dropdown-menu');
+            menus.forEach(m => m.classList.remove('show'));
+        });
 
-            const match = passageText.match(/^([1-3]?\s*[a-z\s]+?)\s+(\d+)(?::(\d+))?/i);
-            
-            if (!match) {
-                linkEl.href = 'https://greekcntr.org/collation/index.html';
-                return;
-            }
-
-            const bookSpaced = match[1].trim();
-            const bookCondensed = bookSpaced.replace(/\s+/g, '');
-            const chapter = match[2];
-            const verse = match[3] || '1';
-
-            const bookCode = bookMap[bookSpaced] || bookMap[bookCondensed];
-            if (!bookCode) {
-                linkEl.href = 'https://greekcntr.org/collation/index.html';
-                return;
-            }
-
-            const ccc = chapter.padStart(3, '0');
-            const vvv = verse.padStart(3, '0');
-
-            linkEl.href = `https://greekcntr.org/collation/index.html?&v=${bookCode}${ccc}${vvv}`;
+        function exportToPDF() {
+            const element = document.getElementById('editor');
+            const opt = {
+                margin:       0.5,
+                filename:     'word-and-way-study.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         }
 
-        // 2. STRUCTURE FORMATTING
         function applyStructure(tag) {
-            document.execCommand('formatBlock', false, tag);
+            document.execCommand('formatBlock', false, `<${tag}>`);
             saveActiveFile();
         }
 
-        // 3. MANUSCRIPT LOG ROW MANAGEMENT
+        function applyFont(val) {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            const span = document.createElement('span');
+            if (val === 'greek') span.className = 'lang-greek';
+            else if (val === 'hebrew') span.className = 'lang-hebrew';
+            
+            if (!range.collapsed) {
+                span.appendChild(range.extractContents());
+                range.insertNode(span);
+            }
+            saveActiveFile();
+        }
+
+        function applyTextColor(color) {
+            document.execCommand('foreColor', false, color);
+            saveActiveFile();
+        }
+
+        function applyHighlight(colorClass) {
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            if (range.collapsed) return;
+            
+            const span = document.createElement('span');
+            span.className = `marker ${colorClass}`;
+            span.appendChild(range.extractContents());
+            range.insertNode(span);
+            saveActiveFile();
+        }
+
+        function clearFormatting() {
+            document.execCommand('removeFormat', false, null);
+            saveActiveFile();
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        function toggleDrawer() {
+            const drawer = document.getElementById('ms-drawer');
+            if (drawer) drawer.classList.toggle('open');
+        }
+
+        // --- NEW RATING GUIDE FUNCTIONS ---
+        function openRatingGuide() {
+            document.getElementById('ratingGuideModal').classList.add('active');
+        }
+        function closeRatingGuide() {
+            document.getElementById('ratingGuideModal').classList.remove('active');
+        }
+
+        function promptAddTag() {
+            const tagText = prompt("Enter tag name:");
+            if (!tagText) return;
+            const tagsContainer = editor.querySelector('.tags-container');
+            if (!tagsContainer) return;
+            
+            const chip = document.createElement('span');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `${tagText} <span class="remove-tag" onclick="this.parentElement.remove(); saveActiveFile();">✕</span>`;
+            tagsContainer.insertBefore(chip, tagsContainer.querySelector('.btn-add-tag'));
+            saveActiveFile();
+        }
+
         function addMsLogRow() {
             const container = document.getElementById('ms-log-container');
             if (!container) return;
@@ -871,257 +968,75 @@
             saveActiveFile();
         }
 
-        // 4. APPLICATION OUTLINE BLOCKS MANAGEMENT
-        function addBlock() {
-            const container = document.getElementById('blocks-container');
-            if (!container) return;
-            const block = document.createElement('div');
-            block.className = 'outline-block';
-            block.setAttribute('data-indent', '0');
-            block.innerHTML = `
-                <div class="block-controls" contenteditable="false">
-                    <button onclick="adjustIndent(this, -1)">‹</button>
-                    <button onclick="adjustIndent(this, 1)">›</button>
-                </div>
-                <div class="block-content" contenteditable="true" placeholder="Sermon point or note...">Type application point here...</div>
-                <button class="btn-delete-file" contenteditable="false" onclick="this.closest('.outline-block').remove(); saveActiveFile();">✕</button>
-            `;
-            container.appendChild(block);
-            saveActiveFile();
-        }
-
-        function adjustIndent(btn, delta) {
-            const block = btn.closest('.outline-block');
-            let indent = parseInt(block.getAttribute('data-indent')) || 0;
-            indent = Math.max(0, Math.min(2, indent + delta));
-            block.setAttribute('data-indent', indent);
-            saveActiveFile();
-        }
-
-        // 5. TRANSPARENT DIAGRAM PASTE PROCESSOR & INSPECTOR
-        editor.addEventListener('paste', function(e) {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let item of items) {
-                if (item.type.indexOf('image') !== -1) {
-                    e.preventDefault();
-                    const blob = item.getAsFile();
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(event) {
-                        processDiagramBackground(event.target.result, function(transparentDataUrl) {
-                            insertDiagramToEditor(transparentDataUrl);
-                        });
-                    };
-                    reader.readAsDataURL(blob);
-                }
+        function attachPassageListener() {
+            const passageTitleEl = document.getElementById('passageTitle');
+            if (passageTitleEl) {
+                passageTitleEl.addEventListener('input', updateCntrLink);
+                passageTitleEl.addEventListener('blur', saveActiveFile);
             }
-        });
-
-        function processDiagramBackground(imgSrc, callback) {
-            const img = new Image();
-            img.src = imgSrc;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imgData.data;
-
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i], g = data[i+1], b = data[i+2];
-                    if (r > 210 && g > 210 && b > 210) {
-                        data[i + 3] = 0;
-                    }
-                }
-                ctx.putImageData(imgData, 0, 0);
-                callback(canvas.toDataURL('image/png'));
-            };
         }
 
-        function insertDiagramToEditor(dataUrl) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'diagram-wrapper';
-            wrapper.setAttribute('contenteditable', 'false');
-            wrapper.innerHTML = `
-                <img src="${dataUrl}" class="diagram-img"/>
-                <div class="diagram-controls">
-                    <button class="btn-action" onclick="openDiagramModal(this)" title="Fullscreen Inspector">🔍</button>
-                    <button class="btn-action" onclick="resizeDiagram(this, 0.8)" title="Contract Inline">-</button>
-                    <button class="btn-action" onclick="resizeDiagram(this, 1.25)" title="Expand Inline">+</button>
-                    <button class="btn-delete-file" onclick="this.closest('.diagram-wrapper').remove(); saveActiveFile();">✕</button>
-                </div>
-            `;
+        function updateCntrLink() {
+            const titleEl = document.getElementById('passageTitle');
+            const cntrLink = document.getElementById('cntrLink');
+            if (!titleEl || !cntrLink) return;
             
-            const sel = window.getSelection();
-            if (sel.rangeCount) {
-                const range = sel.getRangeAt(0);
-                range.insertNode(wrapper);
-            } else {
-                editor.appendChild(wrapper);
+            const text = titleEl.innerText.toLowerCase().trim();
+            const match = text.match(/^([1-3]?\s?[a-z]+)\s*(\d+)?:?(\d+)?/i);
+            
+            if (match) {
+                const bookRaw = match[1].replace(/\s+/g, '');
+                const bookCode = bookMap[bookRaw];
+                if (bookCode) {
+                    const ch = match[2] ? match[2].padStart(3, '0') : '001';
+                    const vs = match[3] ? match[3].padStart(3, '0') : '001';
+                    cntrLink.href = `https://greekcntr.org/collation/index.html?v=${bookCode}${ch}${vs}`;
+                    saveActiveFile();
+                    return;
+                }
             }
+            cntrLink.href = "https://greekcntr.org/collation/index.html";
             saveActiveFile();
         }
 
-        function resizeDiagram(btn, factor) {
-            const img = btn.closest('.diagram-wrapper').querySelector('img');
-            const currentWidth = img.clientWidth || img.offsetWidth;
-            img.style.maxWidth = 'none';
-            img.style.width = Math.round(currentWidth * factor) + 'px';
-            saveActiveFile();
+        function attachEditorListeners() {
+            editor.addEventListener('input', () => {
+                saveActiveFile();
+            });
         }
 
-        // FULLSCREEN DIAGRAM INSPECTOR MODAL LOGIC
         let modalZoom = 1;
-        let isDragging = false;
-        let startX, startY, scrollLeft, scrollTop;
-
-        function openDiagramModal(btn) {
-            const img = btn.closest('.diagram-wrapper').querySelector('img');
-            const modalImg = document.getElementById('modalImage');
-            modalImg.src = img.src;
-            modalZoom = 1;
-            updateModalZoom();
-            document.getElementById('diagramModal').classList.add('active');
+        function openDiagramModal(src) {
+            const modal = document.getElementById('diagramModal');
+            const img = document.getElementById('modalImage');
+            if (modal && img) {
+                img.src = src;
+                modalZoom = 1;
+                img.style.transform = `scale(${modalZoom})`;
+                modal.classList.add('active');
+            }
         }
 
         function closeDiagramModal() {
-            document.getElementById('diagramModal').classList.remove('active');
+            const modal = document.getElementById('diagramModal');
+            if (modal) modal.classList.remove('active');
         }
 
         function zoomModal(factor) {
-            modalZoom = Math.max(0.4, Math.min(5, modalZoom * factor));
-            updateModalZoom();
+            const img = document.getElementById('modalImage');
+            if (img) {
+                modalZoom *= factor;
+                img.style.transform = `scale(${modalZoom})`;
+            }
         }
 
         function resetModalZoom() {
-            modalZoom = 1;
-            updateModalZoom();
-        }
-
-        function updateModalZoom() {
-            const modalImg = document.getElementById('modalImage');
-            modalImg.style.transform = `scale(${modalZoom})`;
-        }
-
-        const viewport = document.getElementById('modalViewport');
-        viewport.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            startX = e.pageX - viewport.offsetLeft;
-            startY = e.pageY - viewport.offsetTop;
-            scrollLeft = viewport.scrollLeft;
-            scrollTop = viewport.scrollTop;
-        });
-        viewport.addEventListener('mouseleave', () => isDragging = false);
-        viewport.addEventListener('mouseup', () => isDragging = false);
-        viewport.addEventListener('mousemove', (e) => {
-            if(!isDragging) return;
-            e.preventDefault();
-            const x = e.pageX - viewport.offsetLeft;
-            const y = e.pageY - viewport.offsetTop;
-            viewport.scrollLeft = scrollLeft - (x - startX) * 1.5;
-            viewport.scrollTop = scrollTop - (y - startY) * 1.5;
-        });
-
-        viewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (e.deltaY < 0) zoomModal(1.15);
-            else zoomModal(0.85);
-        }, { passive: false });
-
-        // 6. LANGUAGE & FONT FORMATTING
-        function applyFont(fontType) {
-            const sel = window.getSelection();
-            if (!sel.rangeCount) return;
-
-            if (fontType === 'greek') {
-                document.execCommand('formatBlock', false, 'p');
-                const parent = sel.anchorNode.parentElement;
-                parent.classList.add('lang-greek');
-                parent.classList.remove('lang-hebrew');
-            } else if (fontType === 'hebrew') {
-                document.execCommand('formatBlock', false, 'p');
-                const parent = sel.anchorNode.parentElement;
-                parent.classList.add('lang-hebrew');
-                parent.classList.remove('lang-greek');
-            } else {
-                const parent = sel.anchorNode.parentElement;
-                parent.classList.remove('lang-greek', 'lang-hebrew');
-            }
-            saveActiveFile();
-        }
-
-        // 7. TAG MANAGEMENT
-        function promptAddTag() {
-            const tag = prompt("Enter new tag/topic (e.g., Syntax, Covenant):");
-            if (tag) {
-                const container = editor.querySelector('.tags-container');
-                const btn = container.querySelector('.btn-add-tag');
-                const chip = document.createElement('span');
-                chip.className = 'tag-chip';
-                chip.innerHTML = `${tag} <span class="remove-tag" onclick="removeTag(this)">✕</span>`;
-                container.insertBefore(chip, btn);
-                saveActiveFile();
+            const img = document.getElementById('modalImage');
+            if (img) {
+                modalZoom = 1;
+                img.style.transform = `scale(${modalZoom})`;
             }
         }
-
-        function removeTag(el) {
-            el.closest('.tag-chip').remove();
-            saveActiveFile();
-        }
-
-        // 8. THEME SWITCHER
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-        }
-
-        // 9. HELPER FORMATTING & EXPORT
-        function applyTextColor(color) { document.execCommand('foreColor', false, color); saveActiveFile(); }
-        function applyHighlight(color) {
-            const sel = window.getSelection();
-            if (!sel.rangeCount) return;
-            const span = document.createElement('span');
-            span.className = `marker ${color}`;
-            sel.getRangeAt(0).surroundContents(span);
-            saveActiveFile();
-        }
-        function clearFormatting() { document.execCommand('removeFormat', false, null); saveActiveFile(); }
-
-        function toggleMenu(id, e) {
-            e.stopPropagation();
-            document.getElementById(id).classList.toggle('show');
-        }
-        document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show')));
-
-        // Drawer Toggle Logic
-        function toggleDrawer() {
-            const drawer = document.getElementById('ms-drawer');
-            const editorContainer = document.getElementById('main-editor-container');
-            
-            drawer.classList.toggle('open');
-            
-            if (drawer.classList.contains('open') && window.innerWidth > 1000) {
-                 editorContainer.style.marginRight = '600px';
-            } else {
-                 editorContainer.style.marginRight = '0';
-            }
-        }
-        
-        // Export to PDF
-        function exportToPDF() {
-            const element = document.getElementById('editor');
-            const opt = {
-              margin:       10,
-              filename:     'Bible_Study_Notes.pdf',
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2 },
-              jsPDF:        { unit: 'mm', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
-        }
-
     </script>
 </body>
 </html>
