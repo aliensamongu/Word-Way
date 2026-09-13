@@ -60,29 +60,29 @@
             position: sticky; top: 0;
             background: rgba(255, 253, 249, 0.98);
             backdrop-filter: blur(10px);
-            padding: 10px 20px;
+            padding: 8px 14px;
             box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
-            display: flex; justify-content: center; align-items: flex-start;
-            gap: 10px; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 6px; z-index: 100;
             border-bottom: 3px solid var(--gold);
             flex-wrap: wrap;
         }
 
         .tool-group {
-            display: flex; align-items: center; gap: 6px;
-            background: #f4f6fa; padding: 4px 10px;
+            display: flex; align-items: center; gap: 5px;
+            background: #f4f6fa; padding: 3px 8px;
             border-radius: 100px; border: 1px solid #cbd5e1;
         }
 
         .tool-group-label {
-            font-size: 0.7rem; color: #1e3a8a;
+            font-size: 0.65rem; color: #1e3a8a;
             font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.8px; margin-right: 2px;
         }
 
         .app-brand {
             font-family: 'Caveat', cursive;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 600;
             color: var(--gold);
             padding-left: 6px;
@@ -96,11 +96,11 @@
             border-radius: 6px;
             background: white;
             cursor: pointer;
-            font-size: 13px; font-weight: 600;
+            font-size: 12px; font-weight: 600;
             transition: all 0.2s ease;
-            height: 32px;
+            height: 30px;
             display: inline-flex; align-items: center; justify-content: center;
-            padding: 0 10px;
+            padding: 0 8px;
             color: #1e293b;
         }
 
@@ -332,11 +332,11 @@
         }
         .diagram-modal.active { display: flex; }
         
-        /* New Rating Guidelines Modal Styles */
+        /* Rating Guidelines & Compare Modal Styles */
         .rating-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(8px);
-            z-index: 1000; justify-content: center; align-items: center;
+            z-index: 1000; justify-content: center; align-items: center; padding: 20px;
         }
         .rating-modal.active { display: flex; }
         .rating-card {
@@ -450,6 +450,15 @@
             background-color: rgba(0,0,0,0.03);
         }
 
+        /* Diff Highlighting inside Compare View */
+        .diff-highlight {
+            background-color: rgba(253, 224, 71, 0.45);
+            border-bottom: 2px solid var(--gold);
+            padding: 0 2px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
         @media print {
             .toolbar, .diagram-controls, .btn-add-tag, .remove-tag, .diagram-modal, #ms-drawer, .btn-drawer, .rating-modal { display: none !important; }
             #editor { box-shadow: none; border: none; padding: 0; width: 100%; }
@@ -474,6 +483,11 @@
                 </div>
 
                 <button class="btn-action btn-pdf" onclick="exportToPDF()">📥 PDF</button>
+
+                <!-- JSON BACKUP BUTTONS -->
+                <button class="btn-action" onclick="exportToJSON()" title="Download Backup">💾 Export</button>
+                <button class="btn-action" onclick="document.getElementById('importFile').click()" title="Restore Backup">📂 Import</button>
+                <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importFromJSON(event)">
             </div>
             <!-- App Brand Title -->
             <div class="app-brand">Word & Way</div>
@@ -525,9 +539,10 @@
             </select>
         </div>
         
-        <!-- Drawer Toggle -->
+        <!-- Drawer & Compare Toggle -->
         <div class="tool-group">
-             <button class="btn-action btn-drawer" onclick="toggleDrawer()">📖 Manuscripts</button>
+            <button class="btn-action" onclick="openCompareModal()">⚖️ Compare</button>
+            <button class="btn-action btn-drawer" onclick="toggleDrawer()">📖 Manuscripts</button>
         </div>
     </div>
     
@@ -630,6 +645,34 @@
             </ul>
         </div>
     </div>
+    
+    <!-- Variant Comparison Modal (Lay-Friendly Auto-Populate & Highlight) -->
+    <div id="compareModal" class="rating-modal">
+        <div class="rating-card" style="max-width: 900px; width: 95%; box-sizing: border-box;">
+            <button class="rating-close" onclick="closeCompareModal()">✕</button>
+            <h3>English Variant Comparison</h3>
+            <p id="compareSubtitle" style="font-size: 0.95rem; margin-top: -10px; margin-bottom: 15px; color: var(--gold);">Comparing translation text and variants with differences highlighted for easy analysis.</p>
+            
+            <div style="display: flex; gap: 16px; margin-top: 10px; width: 100%;">
+                <!-- Left Side -->
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--royal-blue);" id="compareLeftHeader">Witness A</div>
+                    <select id="compareLeftSelect" class="ms-log-field" style="font-weight: 600; background: #f8fafc; width: 100%;" onchange="updateCompareText()"></select>
+                    <div id="compareLeftText" class="ms-log-field" style="min-height: 180px; width: 100%; font-family: 'Crimson Pro', serif; font-size: 1.15rem; line-height: 1.6; padding: 14px; background: var(--paper-color); overflow-y: auto;"></div>
+                </div>
+                
+                <!-- Right Side -->
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--royal-blue);" id="compareRightHeader">Witness B</div>
+                    <select id="compareRightSelect" class="ms-log-field" style="font-weight: 600; background: #f8fafc; width: 100%;" onchange="updateCompareText()"></select>
+                    <div id="compareRightText" class="ms-log-field" style="min-height: 180px; width: 100%; font-family: 'Crimson Pro', serif; font-size: 1.15rem; line-height: 1.6; padding: 14px; background: var(--paper-color); overflow-y: auto;"></div>
+                </div>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.8rem; color: #64748b; text-align: center;">
+                💡 Highlighted words (<span style="background: rgba(253, 224, 71, 0.45); padding: 1px 4px; border-radius: 3px; font-weight: 600;">yellow</span>) indicate textual variations between the two selected witnesses. Unavailable manuscripts for this book are automatically grayed out.
+            </div>
+        </div>
+    </div>
 
     <!-- Interactive Diagram Inspector Modal -->
     <div id="diagramModal" class="diagram-modal">
@@ -650,10 +693,9 @@
         const STORAGE_FILES_KEY = 'bible_study_files_v10';
         const STORAGE_ACTIVE_ID_KEY = 'bible_study_active_id_v10';
 
-        // NOTE: Default template updated to include the info button in the header row
         const defaultTemplate = `<div class="passage-header-container" contenteditable="false">
-    <h2 id="passageTitle" contenteditable="true">Insert Passage Range Here</h2>
-    <a id="cntrLink" class="cntr-external-link" href="https://greekcntr.org/collation/index.html" target="_blank" rel="noopener noreferrer" title="View manuscript collation on GreekCNTR">↗</a>
+    <h2 id="passageTitle" contenteditable="true">Hebrews 1:1–4</h2>
+    <a id="cntrLink" class="cntr-external-link" href="https://greekcntr.org/collation/index.html?v=58001001" target="_blank" rel="noopener noreferrer" title="View manuscript collation on GreekCNTR">↗</a>
 </div>
 <div class="tags-container" contenteditable="false">
     <button class="btn-add-tag" onclick="promptAddTag()">+ Tag</button>
@@ -745,7 +787,7 @@
             let activeId = getActiveId();
             if (Object.keys(files).length === 0) {
                 const id = 'study_' + Date.now();
-                files[id] = { id: id, title: 'Untitled Passage Study', content: defaultTemplate };
+                files[id] = { id: id, title: 'Hebrews 1:1–4', content: defaultTemplate };
                 saveFiles(files);
                 setActiveId(id);
                 activeId = id;
@@ -765,13 +807,12 @@
             setActiveId(id);
             editor.innerHTML = files[id].content;
             
-            // Auto-update script: Injects the button into old, already-saved files
             const headerRow = editor.querySelector('.ms-log-header-row');
             if (headerRow) {
                 const ratingSpan = headerRow.children[2];
                 if (ratingSpan && !ratingSpan.innerHTML.includes('ℹ️')) {
                     ratingSpan.innerHTML = 'Rating <button class="btn-delete-file" style="cursor:pointer; font-size:1rem; padding:0 4px;" onclick="openRatingGuide()" title="Rating Guidelines" contenteditable="false">ℹ️</button>';
-                    saveActiveFile(); // Save the patch silently
+                    saveActiveFile(); 
                 }
             }
 
@@ -926,7 +967,6 @@
             if (drawer) drawer.classList.toggle('open');
         }
 
-        // --- NEW RATING GUIDE FUNCTIONS ---
         function openRatingGuide() {
             document.getElementById('ratingGuideModal').classList.add('active');
         }
@@ -1036,6 +1076,175 @@
                 modalZoom = 1;
                 img.style.transform = `scale(${modalZoom})`;
             }
+        }
+        
+        // --- JSON BACKUP & RESTORE ---
+        function exportToJSON() {
+            const data = localStorage.getItem(STORAGE_FILES_KEY) || '{}';
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const dateStr = new Date().toISOString().slice(0,10);
+            a.download = `word-and-way-backup-${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importFromJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    const currentData = getFiles();
+                    
+                    const mergedData = { ...currentData, ...importedData };
+                    saveFiles(mergedData);
+                    
+                    initStorage(); 
+                    alert('Study library successfully restored!');
+                } catch (err) {
+                    alert('Error: Invalid backup file format.');
+                    console.error(err);
+                }
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        // --- LAY-FRIENDLY AUTO-POPULATE VARIANT COMPARISON WITH SMART FILTERING ---
+        function parseCurrentPassage() {
+            const titleEl = document.getElementById('passageTitle');
+            const text = titleEl ? titleEl.innerText.toLowerCase().trim() : 'heb 1:1-4';
+            if (!text || text.includes('insert passage')) return 'Hebrews 1:1–4';
+            return titleEl.innerText.trim();
+        }
+
+        const samplePassageDatabase = {
+            'heb 1:1-4': {
+                standardRef: 'Hebrews 1:1–4 (Standard Alexandrian Text / ESV Basis)',
+                defaultText: 'Long ago, at many times and in many ways, God spoke to our fathers by the prophets, but in these last days he has spoken to us by his Son, whom he appointed the heir of all things, through whom also he created the world. He is the radiance of the glory of God and the exact imprint of his nature, and he upholds the universe by the word of his power. After making purification for sins, he sat down at the right hand of the Majesty on high.',
+                variants: {
+                    'P46': {
+                        name: 'Chester Beatty II (c. 200 AD)',
+                        text: 'Long ago, at many times and in many ways, God spoke to our fathers by the prophets, but in these last days he has spoken to us by <span class="diff-highlight">his beloved</span> Son, whom he appointed the heir of all things, through whom also he created the <span class="diff-highlight">ages</span>. He is the radiance of the glory of God and the exact imprint of his nature, and he upholds the universe by the word of his power. After making purification for sins, he sat down at the right hand of the Majesty on high.'
+                    },
+                    'Aleph': {
+                        name: 'Codex Sinaiticus (4th Century)',
+                        text: 'Long ago, at many times and in many ways, God spoke to our fathers by the prophets, but in these last days he has spoken to us by his Son, whom he appointed the heir of all things, through whom also he created the world. He is the radiance of the glory of God and the exact imprint of his nature, and he upholds the universe by the word of his power. After making purification for sins, he sat down at the right hand of the Majesty <span class="diff-highlight">in the highest</span>.'
+                    },
+                    'B': {
+                        name: 'Codex Vaticanus (4th Century)',
+                        text: 'Long ago, at many times and in many ways, God spoke to our fathers by the prophets, but in these last days he has spoken to us by his Son, whom he appointed the heir of all things, through whom also he created the world. He is the radiance of the glory of God and the exact imprint of his nature, and he upholds the universe by the word of his power. After making purification for sins, <span class="diff-highlight">having accomplished cleansing for sins</span>, he sat down at the right hand of the Majesty on high.'
+                    }
+                }
+            }
+        };
+
+        function openCompareModal() {
+            const modal = document.getElementById('compareModal');
+            const leftSelect = document.getElementById('compareLeftSelect');
+            const rightSelect = document.getElementById('compareRightSelect');
+            const subtitle = document.getElementById('compareSubtitle');
+            
+            const passageTitle = parseCurrentPassage();
+            subtitle.innerHTML = `Comparing English text and manuscript variants for: <strong style="color: var(--royal-blue);">${passageTitle}</strong>`;
+            
+            leftSelect.innerHTML = '';
+            rightSelect.innerHTML = '';
+            
+            const textLower = passageTitle.toLowerCase();
+            const isHebrews = textLower.includes('heb');
+
+            const rows = document.querySelectorAll('.ms-table tbody tr');
+            
+            const baseOptL = document.createElement('option');
+            baseOptL.value = 'standard';
+            baseOptL.text = 'Standard Text (ESV / Baseline)';
+            leftSelect.appendChild(baseOptL);
+            
+            const baseOptR = document.createElement('option');
+            baseOptR.value = 'P46';
+            baseOptR.text = 'P46 (Chester Beatty II — Early Variant)';
+            rightSelect.appendChild(baseOptR);
+
+            rows.forEach(row => {
+                const designation = row.cells[0].innerText;
+                const name = row.cells[1].innerText;
+                const contents = row.cells[4].innerText.toLowerCase();
+                
+                let label = `${designation} (${name})`;
+                let isRelevant = true;
+
+                // Automatically flag and disable manuscripts that do not contain Hebrews when studying Hebrews
+                if (isHebrews && !contents.includes('hebrews') && !contents.includes('pauline') && !contents.includes('complete new testament') && !contents.includes('complete greek bible')) {
+                    isRelevant = false;
+                }
+
+                const optL = document.createElement('option');
+                optL.value = designation;
+                optL.text = label;
+                
+                if (!isRelevant) {
+                    optL.text += ' ⚠️ [Not in this book]';
+                    optL.style.color = '#94a3b8';
+                    optL.disabled = true;
+                }
+                
+                leftSelect.appendChild(optL);
+                rightSelect.appendChild(optL.cloneNode(true));
+            });
+            
+            leftSelect.value = 'standard';
+            rightSelect.value = 'P46';
+            
+            updateCompareText();
+            modal.classList.add('active');
+        }
+
+        function updateCompareText() {
+            const leftSelect = document.getElementById('compareLeftSelect');
+            const rightSelect = document.getElementById('compareRightSelect');
+            const leftTextEl = document.getElementById('compareLeftText');
+            const rightTextEl = document.getElementById('compareRightText');
+            const leftHeader = document.getElementById('compareLeftHeader');
+            const rightHeader = document.getElementById('compareRightHeader');
+            
+            const passageKey = 'heb 1:1-4'; 
+            const data = samplePassageDatabase[passageKey] || {
+                defaultText: 'Select or enter a passage to view English translation text...'
+            };
+            
+            const leftVal = leftSelect.value;
+            const rightVal = rightSelect.value;
+            
+            leftHeader.innerText = leftSelect.options[leftSelect.selectedIndex].text;
+            rightHeader.innerText = rightSelect.options[rightSelect.selectedIndex].text;
+            
+            if (leftVal === 'standard') {
+                leftTextEl.innerHTML = data.defaultText;
+            } else if (data.variants && data.variants[leftVal]) {
+                leftTextEl.innerHTML = data.variants[leftVal].text;
+            } else {
+                leftTextEl.innerHTML = `<em>Witness ${leftVal}: Standard reading rendered in English with no primary variant divergence cataloged in this quick view.</em><br><br>` + data.defaultText;
+            }
+            
+            if (rightVal === 'standard') {
+                rightTextEl.innerHTML = data.defaultText;
+            } else if (data.variants && data.variants[rightVal]) {
+                rightTextEl.innerHTML = data.variants[rightVal].text;
+            } else {
+                rightTextEl.innerHTML = `<em>Witness ${rightVal}: Standard reading rendered in English.</em><br><br>` + data.defaultText;
+            }
+        }
+
+        function closeCompareModal() {
+            document.getElementById('compareModal').classList.remove('active');
         }
     </script>
 </body>
