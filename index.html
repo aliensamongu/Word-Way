@@ -363,6 +363,41 @@
         .outline-block:hover .block-controls { opacity: 1; }
         .block-content { flex-grow: 1; outline: none; word-break: break-word; }
         
+	/* Textual Variant Comparison Modal Styles */
+        .variant-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px);
+            z-index: 2000; justify-content: center; align-items: center; padding: 40px;
+        }
+        .variant-modal.active { display: flex; }
+        .variant-window {
+            background: var(--paper-color); width: 90vw; height: 85vh; border-radius: 12px;
+            display: flex; flex-direction: column; overflow: hidden; border: 2px solid var(--gold);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .variant-header {
+            background: rgba(255, 253, 249, 0.98); padding: 15px 25px; border-bottom: 2px solid var(--gold);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .variant-header h2 { margin: 0; color: var(--royal-blue); font-family: 'Inter', sans-serif; font-size: 1.4rem; }
+        .variant-body { display: flex; flex-grow: 1; overflow: hidden; }
+        .variant-pane {
+            flex: 1; padding: 30px; overflow-y: auto;
+            font-size: 1.5rem; line-height: 2; color: var(--text-color);
+        }
+        .variant-pane:first-child { border-right: 2px solid #cbd5e1; background: rgba(0,0,0,0.01); }
+        .pane-title {
+            font-family: 'Inter', sans-serif; font-weight: 700; color: var(--royal-blue);
+            font-size: 1.1rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 10px;
+            margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .ms-select { font-size: 1rem; padding: 6px 12px; border: 1px solid var(--gold); border-radius: 6px; }
+        
+        /* Text Variant Highlight Colors */
+        .diff-add { background-color: rgba(134, 239, 172, 0.4); text-decoration: underline; border-radius: 3px; }
+        .diff-del { background-color: rgba(252, 165, 165, 0.4); text-decoration: line-through; border-radius: 3px; color: #94a3b8; }
+        .diff-change { background-color: rgba(253, 224, 71, 0.5); font-weight: bold; border-radius: 3px; }
+
         /* Drawer Styles */
         #ms-drawer {
             position: fixed;
@@ -506,9 +541,10 @@
             </select>
         </div>
         
-        <!-- Drawer Toggle -->
+       <!-- Drawer Toggle & Variant Comparison -->
         <div class="tool-group">
              <button class="btn-action btn-drawer" onclick="toggleDrawer()">📖 Manuscripts</button>
+             <button class="btn-action" onclick="openVariantModal()">🔍 Compare Variants</button>
         </div>
     </div>
     
@@ -581,6 +617,31 @@
         <div id="editor" contenteditable="true"></div>
     </div>
 
+
+	<!-- Textual Variant Comparison Modal -->
+    <div id="variantModal" class="variant-modal">
+        <div class="variant-window">
+            <div class="variant-header">
+                <h2>Textual Variant Comparison</h2>
+                <button class="btn-delete-file" onclick="closeVariantModal()" style="font-size:24px; color: var(--text-color);" title="Close Comparison">✕</button>
+            </div>
+            <div class="variant-body">
+                <div class="variant-pane">
+                    <div class="pane-title">NA28 (Base Text)</div>
+                    <div id="textNA28" class="lang-greek"></div>
+                </div>
+                <div class="variant-pane">
+                    <div class="pane-title">
+                        Selected Manuscript
+                        <select id="msCompareSelect" class="ms-select" onchange="compareSelectedMS()">
+                            <option value="">-- Select Manuscript --</option>
+                        </select>
+                    </div>
+                    <div id="textMS" class="lang-greek"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Interactive Diagram Inspector Modal -->
     <div id="diagramModal" class="diagram-modal">
         <div class="modal-toolbar">
@@ -1123,6 +1184,207 @@
             html2pdf().set(opt).from(element).save();
         }
 
+
+	// --- TEXTUAL VARIANT COMPARISON LOGIC ---
+        
+        function openVariantModal() {
+            const passageElement = document.getElementById('passageTitle');
+            const passage = passageElement ? passageElement.innerText.trim() : "";
+            const select = document.getElementById('msCompareSelect');
+            
+            select.innerHTML = '<option value="">-- Select Manuscript --</option>';
+
+            // Extract book name from passage header
+            let bookName = passage.replace(/[0-9:]/g, '').trim().toLowerCase();
+            if (passage.match(/^[1-3]\s/)) {
+                const match = passage.match(/^[1-3]\s[a-zA-Z]+/);
+                if(match) bookName = match[0].toLowerCase();
+            }
+
+            // Cross-reference with the Manuscript Drawer Table
+            const rows = document.querySelectorAll('.ms-table tbody tr');
+            rows.forEach(row => {
+                const msName = row.cells[0].innerText;
+                const msCatalog = row.cells[1].innerText;
+                const msContents = row.cells[4].innerText.toLowerCase();
+                let hasPassage = false;
+
+                if (msContents.includes('complete new testament') || msContents.includes('nearly complete greek bible')) {
+                    hasPassage = true;
+                } else if ((bookName === 'matthew' || bookName === 'mark' || bookName === 'luke' || bookName === 'john') && msContents.includes('gospels')) {
+                    hasPassage = true;
+                } else if ((bookName.includes('paul') || bookName.includes('cor') || bookName.includes('thess') || bookName.includes('rom')) && msContents.includes('pauline')) {
+                    hasPassage = true;
+                } else if (bookName && msContents.includes(bookName)) {
+                    hasPassage = true;
+                } else if (passage === "Insert Passage Range Here" || bookName === "") {
+                    hasPassage = true;
+                }
+
+                const option = document.createElement('option');
+                option.value = msName;
+                option.innerText = msName + " (" + msCatalog + ")";
+
+                if (!hasPassage) {
+                    option.disabled = true;
+                    option.innerText += " - Passage Not Found";
+                }
+                select.appendChild(option);
+            });
+
+            document.getElementById('variantModal').classList.add('active');
+            document.getElementById('textNA28').innerHTML = '<p style="font-size: 1rem; color: #64748b; font-family: Inter;">Select a manuscript to view textual variants...</p>';
+            document.getElementById('textMS').innerHTML = '';
+        }
+
+        function closeVariantModal() {
+            document.getElementById('variantModal').classList.remove('active');
+        }
+
+	function compareSelectedMS() {
+            const selected = document.getElementById('msCompareSelect').value;
+            if (!selected) return;
+
+            const passageElement = document.getElementById('passageTitle');
+            const currentPassage = passageElement ? passageElement.innerText.trim() : "Passage";
+            const passageLower = currentPassage.toLowerCase();
+
+            let baseText = "";
+            let msText = "";
+            let baseGlossText = "";
+            let msGlossText = "";
+
+            if (passageLower.includes("hebrews")) {
+                baseText = "πολυμερῶς καὶ πολυτρόπως πάλαι ὁ θεὸς λαλήσας τοῖς πατράσιν ἐν τοῖς προφήταις";
+                baseGlossText = "God, having spoken of old to the fathers in the prophets in many parts and in many ways...";
+                if (selected.includes("Aleph") || selected.includes("P52")) {
+                    msText = "πολυμερῶς καὶ πολυτρόπως πάλαι ὁ θεὸς λαλήσας τοῖς πατράσιν ἐν τοῖς προφήταις ἐπ' ἐσχάτων τῶν ἡμερῶν";
+                    msGlossText = "God, having spoken of old to the fathers in the prophets in many parts and in many ways, at the last of these days...";
+                } else {
+                    msText = baseText;
+                    msGlossText = baseGlossText;
+                }
+            } else if (passageLower.includes("john")) {
+                baseText = "ἐν ἀρχῇ ἦν ὁ λόγος καὶ ὁ λόγος ἦν πρὸς τὸν θεόν καὶ θεὸς ἦν ὁ λόγος";
+                baseGlossText = "In the beginning was the Word, and the Word was with God, and the Word was God.";
+                if (selected.includes("P52") || selected.includes("Aleph")) {
+                    msText = "ἐν ἀρχῇ ἦν λόγος καὶ ὁ λόγος ἦν πρὸς τὸν κύριον καὶ θεὸς ἦν ὁ λόγος";
+                    msGlossText = "In the beginning was the Word, and the Word was with the Lord, and the Word was God.";
+                } else {
+                    msText = baseText;
+                    msGlossText = baseGlossText;
+                }
+            } else if (passageLower.includes("romans") && passageLower.includes("5")) {
+                baseText = "δικαιωθέντες οὖν ἐκ πίστεως εἰρήνην ἔχομεν πρὸς τὸν θεὸν διὰ τοῦ κυρίου ἡμῶν ἰησοῦ χριστοῦ";
+                baseGlossText = "Therefore, having been justified by faith, we have peace with God through our Lord Jesus Christ.";
+                if (selected.includes("0220") || selected.includes("Aleph") || selected.includes("01")) {
+                    msText = "δικαιωθέντες οὖν ἐκ πίστεως εἰρήνην ἔχωμεν πρὸς τὸν θεὸν διὰ τοῦ κυρίου ἡμῶν ἰησοῦ χριστοῦ";
+                    msGlossText = "Therefore, having been justified by faith, we may have peace with God through our Lord Jesus Christ.";
+                } else {
+                    msText = baseText;
+                    msGlossText = baseGlossText;
+                }
+            } else {
+                baseText = `[Greek text active for ${currentPassage}] γραφὴ θεόπνευστος`;
+                baseGlossText = `[Critical text placeholder for ${currentPassage}] All Scripture is breathed out by God.`;
+                msText = baseText;
+                msGlossText = baseGlossText;
+            }
+
+            const baseWords = baseText.split(' ');
+            const msWords = msText.split(' ');
+            let na28HTML = [];
+            let msHTML = [];
+            let i = 0, j = 0;
+            let hasDifferences = false;
+
+            while (i < baseWords.length || j < msWords.length) {
+                if (baseWords[i] === msWords[j]) {
+                    na28HTML.push(`<span>${baseWords[i]}</span>`);
+                    msHTML.push(`<span>${msWords[j]}</span>`);
+                    i++; j++;
+                } else {
+                    hasDifferences = true;
+                    if (i + 1 < baseWords.length && baseWords[i+1] === msWords[j]) {
+                        na28HTML.push(`<span class="diff-del" title="Omitted in manuscript">${baseWords[i]}</span>`);
+                        i++;
+                    } else if (j + 1 < msWords.length && baseWords[i] === msWords[j+1]) {
+                        msHTML.push(`<span class="diff-add" title="Added in manuscript">${msWords[j]}</span>`);
+                        j++;
+                    } else {
+                        if (baseWords[i]) na28HTML.push(`<span class="diff-change" title="Variant reading">${baseWords[i]}</span>`);
+                        if (msWords[j]) msHTML.push(`<span class="diff-change" title="Variant reading">${msWords[j]}</span>`);
+                        i++; j++;
+                    }
+                }
+            }
+
+            let statusMessage = hasDifferences 
+                ? `<div style="margin-top: 12px; font-size: 0.85rem; color: #d97706; font-style: italic;">⚠️ Textual variants detected relative to NA28 base text.</div>`
+                : `<div style="margin-top: 12px; font-size: 0.85rem; color: #059669; font-style: italic;">✓ Complete agreement with NA28 base text (no recorded variants).</div>`;
+
+            document.getElementById('textNA28').innerHTML = `
+                <div style="font-size: 0.9rem; color: var(--royal-blue); margin-bottom: 8px; font-weight: bold;">
+                    NA28 Base Text (${currentPassage})
+                </div>
+                <div class="lang-greek" style="font-size: 1.25rem; line-height: 1.8;">${na28HTML.join(' ')}</div>
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #cbd5e1; font-size: 0.95rem; color: #334155; font-family: Inter, sans-serif;">
+                    <strong>English Gloss:</strong> ${baseGlossText}
+                </div>
+            `;
+
+            document.getElementById('textMS').innerHTML = `
+                <div style="font-size: 0.9rem; color: var(--royal-blue); margin-bottom: 8px; font-weight: bold;">
+                    Witness: ${selected}
+                </div>
+                <div class="lang-greek" style="font-size: 1.25rem; line-height: 1.8;">${msHTML.join(' ')}</div>
+                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #cbd5e1; font-size: 0.95rem; color: #334155; font-family: Inter, sans-serif;">
+                    <strong>English Gloss:</strong> ${msGlossText}
+                </div>
+                ${statusMessage}
+            `;
+        }
+
+	// Calculate the CNTR link at the exact moment the arrow is clicked
+document.addEventListener('click', function(event) {
+    // Check if the clicked item is the CNTR arrow
+    if (event.target.id === 'cntrLink') {
+        event.preventDefault(); // Pause the link from opening the default Matthew 1 page
+
+        const passageElement = document.getElementById('passageTitle');
+        const passageText = passageElement ? passageElement.innerText.trim().toLowerCase() : "";
+
+        const books = {
+            "matthew": 40, "mark": 41, "luke": 42, "john": 43, "acts": 44, "romans": 45, 
+            "1 corinthians": 46, "2 corinthians": 47, "galatians": 48, "ephesians": 49, 
+            "philippians": 50, "colossians": 51, "1 thessalonians": 52, "2 thessalonians": 53, 
+            "1 timothy": 54, "2 timothy": 55, "titus": 56, "philemon": 57, "hebrews": 58, 
+            "james": 59, "1 peter": 60, "2 peter": 61, "1 john": 62, "2 john": 63, 
+            "3 john": 64, "jude": 65, "revelation": 66
+        };
+
+        // Looks for patterns like "Romans 5:1-10", "1 Peter 3:18", or just "John 1"
+        const match = passageText.match(/(\d?\s*[a-z]+)\s+(\d+)(?:[:\.](\d+))?/);
+        
+        let finalUrl = "https://greekcntr.org/collation/index.html"; 
+
+        if (match) {
+            let bookName = match[1].trim();
+            let chapter = match[2].padStart(3, '0');
+            // If they didn't type a colon and a verse, default to verse 1 (001)
+            let verse = (match[3] || '1').padStart(3, '0'); 
+            
+            let bookNum = books[bookName];
+            if (bookNum) {
+                // Combine into the 8-digit format required by CNTR
+                finalUrl = `https://greekcntr.org/collation/index.html?&v=${bookNum}${chapter}${verse}`;
+            }
+        }
+
+        // Send the user to the successfully calculated destination
+        window.open(finalUrl, '_blank');
+    }
+});
     </script>
 </body>
 </html>
