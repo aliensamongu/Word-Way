@@ -1,0 +1,71 @@
+import json
+import xml.etree.ElementTree as ET
+
+# The 27 New Testament books matching your app's key structure
+BOOKS = [
+    "matthew", "mark", "luke", "john", "acts", "romans",
+    "1corinthians", "2corinthians", "galatians", "ephesians",
+    "philippians", "colossians", "1thessalonians", "2thessalonians",
+    "1timothy", "2timothy", "titus", "philemon", "hebrews",
+    "james", "1peter", "2peter", "1john", "2john", "3john",
+    "jude", "revelation"
+]
+
+def build_from_xml():
+    print("Reading local EMTV XML file...")
+    try:
+        tree = ET.parse('emtv.xml')
+        root = tree.getroot()
+    except Exception as e:
+        print(f"Error reading emtv.xml: {e}")
+        return
+
+    print("Processing OSIS XML structure...")
+    
+    # Initialize dictionary structure for all books
+    db = {}
+    for book in BOOKS:
+        db[book] = {
+            "na28": {"greek": "", "gloss": ""},
+            "aleph": {"greek": "", "gloss": ""}
+        }
+
+    # OSIS XML files usually use namespaces, so we check elements flexibly
+    for elem in root.iter():
+        osis_id = elem.attrib.get('osisID', '')
+        if osis_id and '.' in osis_id:
+            parts = osis_id.split('.')
+            book_name = parts[0].lower()
+            
+            book_map = {
+                'matt': 'matthew', 'rom': 'romans', 'john': 'john', 'rev': 'revelation',
+                '1cor': '1corinthians', '2cor': '2corinthians', '1thess': '1thessalonians',
+                '2thess': '2thessalonians', '1tim': '1timothy', '2tim': '2timothy',
+                '1pet': '1peter', '2pet': '2peter', '1john': '1john', '2john': '2john',
+                '3john': '3john', 'heb': 'hebrews', 'jas': 'james', 'ude': 'jude',
+                'phlp': 'philippians', 'col': 'colossians', 'gal': 'galatians', 
+                'eph': 'ephesians', 'tit': 'titus', 'phlm': 'philemon', 'acts': 'acts',
+                'luke': 'luke', 'mark': 'mark'
+            }
+            
+            clean_book = book_map.get(book_name, book_name)
+            
+            if clean_book in db:
+                verse_text = "".join(elem.itertext()).strip()
+                if verse_text:
+                    if db[clean_book]["na28"]["gloss"]:
+                        db[clean_book]["na28"]["gloss"] += " " + verse_text
+                    else:
+                        db[clean_book]["na28"]["gloss"] = verse_text
+                    
+                    db[clean_book]["aleph"]["gloss"] = db[clean_book]["na28"]["gloss"]
+
+    # Write out to data.json
+    output_filename = "data.json"
+    with open(output_filename, "w", encoding="utf-8") as f:
+        json.dump(db, f, ensure_ascii=False, indent=2)
+
+    print(f"Success! {output_filename} has been updated using emtv.xml.")
+
+if __name__ == "__main__":
+    build_from_xml()
