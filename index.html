@@ -14,6 +14,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+
+	.diff-trans {
+    background-color: #ede9fe; /* Light purple */
+    color: #7c3aed; /* Deep purple */
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 0 2px;
+}	
+
         :root {
             /* Parchment Theme (Default) */
             --bg-color: #0b192c;
@@ -1241,56 +1250,71 @@
             document.getElementById('variantModal').classList.remove('active');
         }
 
-	function compareSelectedMS() {
+// Added 'async' so the code knows to wait for the JSON file to open
+        async function compareSelectedMS() {
             const selected = document.getElementById('msCompareSelect').value;
             if (!selected) return;
+
+            // --- Enriched Manuscript Tooltip Dictionary ---
+            const msDetails = {
+                "Aleph": "Codex Sinaiticus (01) • 4th Century • Aland Category I. A highly significant Alexandrian manuscript containing the complete New Testament.",
+                "P52": "Papyrus 52 • 2nd Century (c. 125 AD) • Aland Category I. The oldest known surviving fragment of the New Testament (Gospel of John).",
+                "0220": "Uncial 0220 • 3rd Century • Aland Category I. An early and highly reliable Alexandrian fragment containing parts of Romans."
+            };
+            
+            let tooltipText = "Historical manuscript witness.";
+            if (selected.includes("Aleph") || selected.includes("01")) {
+                tooltipText = msDetails["Aleph"];
+            } else if (selected.includes("P52")) {
+                tooltipText = msDetails["P52"];
+            } else if (selected.includes("0220")) {
+                tooltipText = msDetails["0220"];
+            }
 
             const passageElement = document.getElementById('passageTitle');
             const currentPassage = passageElement ? passageElement.innerText.trim() : "Passage";
             const passageLower = currentPassage.toLowerCase();
 
-            let baseText = "";
-            let msText = "";
-            let baseGlossText = "";
-            let msGlossText = "";
+            // Set neutral placeholders
+            let baseText = `[Greek text active for ${currentPassage}]`;
+            let msText = baseText;
+            let baseGlossText = `[Translation text active for ${currentPassage}]`;
+            let msGlossText = baseGlossText;
 
-            if (passageLower.includes("hebrews")) {
-                baseText = "πολυμερῶς καὶ πολυτρόπως πάλαι ὁ θεὸς λαλήσας τοῖς πατράσιν ἐν τοῖς προφήταις";
-                baseGlossText = "God, having spoken of old to the fathers in the prophets in many parts and in many ways...";
-                if (selected.includes("Aleph") || selected.includes("P52")) {
-                    msText = "πολυμερῶς καὶ πολυτρόπως πάλαι ὁ θεὸς λαλήσας τοῖς πατράσιν ἐν τοῖς προφήταις ἐπ' ἐσχάτων τῶν ἡμερῶν";
-                    msGlossText = "God, having spoken of old to the fathers in the prophets in many parts and in many ways, at the last of these days...";
-                } else {
-                    msText = baseText;
-                    msGlossText = baseGlossText;
+            // Extract the book name from the header (e.g., "1 Peter" becomes "1peter")
+            const match = passageLower.match(/(\d?\s*[a-z]+)/);
+            const bookKey = match ? match[1].replace(/\s+/g, '') : ""; 
+            
+            // Match the dropdown selection to your JSON manuscript labels
+            let msKey = "aleph"; 
+            if (selected.includes("P52")) msKey = "p52";
+            else if (selected.includes("0220")) msKey = "0220";
+
+            // --- NEW: Open the JSON cabinet and grab the text! ---
+            try {
+                const response = await fetch('data.json');
+                const data = await response.json();
+
+                // If the book exists in your JSON file, load it
+                if (data[bookKey]) {
+                    baseText = data[bookKey].na28.greek;
+                    baseGlossText = data[bookKey].na28.gloss;
+                    
+                    // If the specific manuscript variant exists, load it
+                    if (data[bookKey][msKey]) {
+                        msText = data[bookKey][msKey].greek;
+                        msGlossText = data[bookKey][msKey].gloss;
+                    } else {
+                        msText = baseText;
+                        msGlossText = baseGlossText;
+                    }
                 }
-            } else if (passageLower.includes("john")) {
-                baseText = "ἐν ἀρχῇ ἦν ὁ λόγος καὶ ὁ λόγος ἦν πρὸς τὸν θεόν καὶ θεὸς ἦν ὁ λόγος";
-                baseGlossText = "In the beginning was the Word, and the Word was with God, and the Word was God.";
-                if (selected.includes("P52") || selected.includes("Aleph")) {
-                    msText = "ἐν ἀρχῇ ἦν λόγος καὶ ὁ λόγος ἦν πρὸς τὸν κύριον καὶ θεὸς ἦν ὁ λόγος";
-                    msGlossText = "In the beginning was the Word, and the Word was with the Lord, and the Word was God.";
-                } else {
-                    msText = baseText;
-                    msGlossText = baseGlossText;
-                }
-            } else if (passageLower.includes("romans") && passageLower.includes("5")) {
-                baseText = "δικαιωθέντες οὖν ἐκ πίστεως εἰρήνην ἔχομεν πρὸς τὸν θεὸν διὰ τοῦ κυρίου ἡμῶν ἰησοῦ χριστοῦ";
-                baseGlossText = "Therefore, having been justified by faith, we have peace with God through our Lord Jesus Christ.";
-                if (selected.includes("0220") || selected.includes("Aleph") || selected.includes("01")) {
-                    msText = "δικαιωθέντες οὖν ἐκ πίστεως εἰρήνην ἔχωμεν πρὸς τὸν θεὸν διὰ τοῦ κυρίου ἡμῶν ἰησοῦ χριστοῦ";
-                    msGlossText = "Therefore, having been justified by faith, we may have peace with God through our Lord Jesus Christ.";
-                } else {
-                    msText = baseText;
-                    msGlossText = baseGlossText;
-                }
-            } else {
-                baseText = `[Greek text active for ${currentPassage}] γραφὴ θεόπνευστος`;
-                baseGlossText = `[Critical text placeholder for ${currentPassage}] All Scripture is breathed out by God.`;
-                msText = baseText;
-                msGlossText = baseGlossText;
+            } catch (error) {
+                console.error("Could not load data.json", error);
             }
+            // -----------------------------------------------------
 
+            // Word-by-word variant comparison engine (with Transpositions!)
             const baseWords = baseText.split(' ');
             const msWords = msText.split(' ');
             let na28HTML = [];
@@ -1303,19 +1327,25 @@
                     na28HTML.push(`<span>${baseWords[i]}</span>`);
                     msHTML.push(`<span>${msWords[j]}</span>`);
                     i++; j++;
+                } else if (i + 1 < baseWords.length && j + 1 < msWords.length && 
+                           baseWords[i] === msWords[j+1] && baseWords[i+1] === msWords[j]) {
+                    hasDifferences = true;
+                    na28HTML.push(`<span class="diff-trans" title="Transposed word order">${baseWords[i]} ${baseWords[i+1]}</span>`);
+                    msHTML.push(`<span class="diff-trans" title="Transposed word order">${msWords[j]} ${msWords[j+1]}</span>`);
+                    i += 2; j += 2;
+                } else if (i + 1 < baseWords.length && baseWords[i+1] === msWords[j]) {
+                    hasDifferences = true;
+                    na28HTML.push(`<span class="diff-del" title="Omitted in manuscript">${baseWords[i]}</span>`);
+                    i++;
+                } else if (j + 1 < msWords.length && baseWords[i] === msWords[j+1]) {
+                    hasDifferences = true;
+                    msHTML.push(`<span class="diff-add" title="Added or Inserted in manuscript">${msWords[j]}</span>`);
+                    j++;
                 } else {
                     hasDifferences = true;
-                    if (i + 1 < baseWords.length && baseWords[i+1] === msWords[j]) {
-                        na28HTML.push(`<span class="diff-del" title="Omitted in manuscript">${baseWords[i]}</span>`);
-                        i++;
-                    } else if (j + 1 < msWords.length && baseWords[i] === msWords[j+1]) {
-                        msHTML.push(`<span class="diff-add" title="Added in manuscript">${msWords[j]}</span>`);
-                        j++;
-                    } else {
-                        if (baseWords[i]) na28HTML.push(`<span class="diff-change" title="Variant reading">${baseWords[i]}</span>`);
-                        if (msWords[j]) msHTML.push(`<span class="diff-change" title="Variant reading">${msWords[j]}</span>`);
-                        i++; j++;
-                    }
+                    if (baseWords[i]) na28HTML.push(`<span class="diff-change" title="Word changed/substituted">${baseWords[i]}</span>`);
+                    if (msWords[j]) msHTML.push(`<span class="diff-change" title="Word changed/substituted">${msWords[j]}</span>`);
+                    i++; j++;
                 }
             }
 
@@ -1335,7 +1365,7 @@
 
             document.getElementById('textMS').innerHTML = `
                 <div style="font-size: 0.9rem; color: var(--royal-blue); margin-bottom: 8px; font-weight: bold;">
-                    Witness: ${selected}
+                    Witness: <span title="${tooltipText}" style="border-bottom: 1px dotted var(--royal-blue); cursor: help;">${selected}</span>
                 </div>
                 <div class="lang-greek" style="font-size: 1.25rem; line-height: 1.8;">${msHTML.join(' ')}</div>
                 <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #cbd5e1; font-size: 0.95rem; color: #334155; font-family: Inter, sans-serif;">
