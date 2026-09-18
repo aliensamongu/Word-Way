@@ -14,6 +14,40 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+/* Styling for lines that modify the clause BELOW them */
+#observationWorkspace blockquote.upward-flow {
+    border-left: 2px dashed #f59e0b !important; /* Amber dashed line */
+    position: relative;
+}
+
+/* Adds a downward arrow at the bottom of the dashed line */
+#observationWorkspace blockquote.upward-flow::after {
+    content: "▼";
+    position: absolute;
+    left: -5px;
+    bottom: -10px; /* Anchors the arrow at the bottom tip pointing down */
+    font-size: 0.55em;
+    color: #f59e0b;
+}
+
+
+/* Visual vertical guideline for indented clauses */
+#observationWorkspace blockquote {
+    margin: 4px 0 4px 18px !important;
+    padding-left: 12px !important;
+    border-left: 2px solid #cbd5e1 !important; /* Slate vertical line */
+}
+
+/* Expanded horizontal layout mode */
+#observationWorkspace.expanded-canvas {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+}
+
+
+
 /* Keeps the modal hidden by default and floats it over the app when opened */
 .modal {
     display: none; /* Keeps it hidden until 'Compare Variants' is clicked */
@@ -572,7 +606,7 @@
             <button onclick="applyHighlight('pink')" style="background: #fbcfe8;">H</button>
             <button onclick="applyHighlight('green')" style="background: #bbf7d0;">H</button>
             <button onclick="applyHighlight('blue')" style="background: #bfdbfe;">H</button>
-            <button onclick="clearFormatting()" title="Eraser">✕</button>
+            <button onmousedown="event.preventDefault()" onclick="document.execCommand('backColor', false, 'transparent')" title="Eraser">x</button>
         </div>
 
         <!-- Theme Selection -->
@@ -727,10 +761,78 @@
     <button class="btn-add-tag" onclick="promptAddTag()">+ Tag</button>
 </div>
 
-<h3>1. Observation Notes</h3>
-<h4>Main Observation</h4>
-<p>Record initial observations, contextual details, and textual notes here...</p>
+<!-- OBSERVATION TOOLBAR & INTERACTIVE WORKSPACE -->
+<div class="observation-section" contenteditable="false" style="margin-top: 20px;">
+    <h3>1. Observation Notes</h3>
+    
+    <!-- Phrasing & Theme Customization Toolbar -->
+    <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 10px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        
+        <!-- Phrasing Controls -->
+        <div style="display: flex; gap: 5px; border-right: 2px solid #ccc; padding-right: 15px;">
+            <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('indent', false, null)">➡ Indent</button>
+            <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('outdent', false, null)">⬅ Outdent</button>
+	<button class="btn-action" onmousedown="event.preventDefault()" onclick="toggleUpwardFlow()" title="Toggle upward subordination (modifies line below)">↑ Link Below</button>
 
+
+<!-- Phrasing Controls -->
+<div style="display: flex; gap: 5px; border-right: 2px solid #ccc; padding-right: 15px;">
+    <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('indent', false, null)">➡ Indent</button>
+    <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('outdent', false, null)">⬅ Outdent</button>
+    <button class="btn-action" onmousedown="event.preventDefault()" onclick="toggleCanvasWidth(this)">↔ Expand Canvas</button>
+</div>
+        </div>
+
+        <!-- Thematic Label Creator -->
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="newThemeName" placeholder="Type a theme..." style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+            <input type="color" id="newThemeColor" value="#fff000" style="cursor: pointer; height: 30px; width: 30px; border: none; padding: 0;">
+            <button class="btn-action" onmousedown="event.preventDefault()" onclick="createNewTheme()">+ Add Label</button>
+        </div>
+
+        <!-- Grammatical Syntax Dropdown -->
+        <div style="display: flex; gap: 6px; align-items: center; border-left: 2px solid #ccc; padding-left: 15px;">
+            <span style="font-size: 0.85em; font-weight: bold; color: #555;">Syntax:</span>
+            <select onchange="applySyntaxBadge(this)" style="padding: 5px 8px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; background: #fff; font-size: 0.9em;">
+                <option value="" disabled selected>+ Tag Clause...</option>
+                <option value="Causal">Causal</option>
+                <option value="Purpose">Purpose</option>
+                <option value="Condition">Condition</option>
+                <option value="Temporal">Temporal</option>
+                <option value="Concessive">Concessive</option>
+                <option value="Means">Means</option>
+                <option value="Result">Result</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Custom Themes Container -->
+    <div id="customThemes" style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;"></div>
+
+    <!-- The Editable Phrasing Canvas -->
+    <div id="observationWorkspace" contenteditable="true" onkeydown="handleTabKey(event)" style="min-height: 220px; padding: 20px; border: 1px solid #ccc; border-radius: 6px; background: #fff; line-height: 1.8; font-size: 1.1em; outline: none; margin-bottom: 15px;">
+        Paste your passage here to begin phrasing and highlighting...
+    </div>
+
+    <!-- RTF Freeform Notepad -->
+    <div style="border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; padding: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #e1e4e8;">
+            <span style="font-weight: bold; font-size: 0.95em; color: #24292e;">📝 Exegetical Notes & Summary</span>
+            
+            <!-- RTF Formatting Controls -->
+            <div style="display: flex; gap: 4px;">
+                <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('bold', false, null)" title="Bold"><b>B</b></button>
+                <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('italic', false, null)" title="Italic"><i>I</i></button>
+                <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('underline', false, null)" title="Underline"><u>U</u></button>
+                <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('insertUnorderedList', false, null)" title="Bullet List">• List</button>
+                <button class="btn-action" onmousedown="event.preventDefault()" onclick="document.execCommand('removeFormat', false, null)" title="Clear Text Formatting">✕ Clear</button>
+            </div>
+        </div>
+        
+        <!-- Editable Notepad Field -->
+        <div id="observationNotepad" contenteditable="true" style="min-height: 120px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: #fff; line-height: 1.6; font-size: 1em; outline: none;" placeholder="Record overall passage summaries, key repetitions, or structural insights here..."></div>
+    </div>
+</div>
 <h3>2. Manuscript Evidence Log</h3>
 <p style="font-size: 0.95rem; color: var(--gold); font-style: italic;">Log variant readings, supporting witnesses/dates, and attestation ratings (A–D):</p>
 <div id="ms-log-container" class="ms-log-container" contenteditable="false">
@@ -1492,6 +1594,161 @@ function closeVariantModal() {
     document.getElementById("cntrModal").style.display = "none";
     document.getElementById("cntrFrame").src = "about:blank";
 }
+// Creates a new custom color button for thematic highlighting
+function createNewTheme() {
+    // 1. Read the name and color the user chose
+    const themeName = document.getElementById("newThemeName").value.trim();
+    const themeColor = document.getElementById("newThemeColor").value;
+
+    // 2. Stop if the text box is empty
+    if (themeName === "") {
+        alert("Please type a theme name before adding a label.");
+        return;
+    }
+
+    // 3. Build a brand new button on the screen
+    const themeBtn = document.createElement("button");
+    themeBtn.innerText = themeName;
+    themeBtn.style.backgroundColor = themeColor;
+    themeBtn.style.padding = "6px 14px";
+    themeBtn.style.border = "1px solid rgba(0,0,0,0.2)";
+    themeBtn.style.borderRadius = "20px";
+    themeBtn.style.cursor = "pointer";
+    themeBtn.style.fontWeight = "bold";
+    themeBtn.style.color = "#000"; // Keeps text readable
+
+    // 4. Program the button to highlight whatever text is currently selected
+    themeBtn.onclick = function() {
+        document.execCommand("backColor", false, themeColor);
+    };
+
+    // 5. Place the button on the screen and clear the text box for the next one
+    document.getElementById("customThemes").appendChild(themeBtn);
+    document.getElementById("newThemeName").value = "";
+}
+
+// Creates a new custom color button for thematic highlighting
+function createNewTheme() {
+    const themeName = document.getElementById("newThemeName").value.trim();
+    const themeColor = document.getElementById("newThemeColor").value;
+
+    if (themeName === "") {
+        alert("Please type a theme name before adding a label.");
+        return;
+    }
+
+    const themeBtn = document.createElement("button");
+    themeBtn.innerText = themeName;
+    themeBtn.style.backgroundColor = themeColor;
+    themeBtn.style.padding = "6px 14px";
+    themeBtn.style.border = "1px solid rgba(0,0,0,0.2)";
+    themeBtn.style.borderRadius = "20px";
+    themeBtn.style.cursor = "pointer";
+    themeBtn.style.fontWeight = "bold";
+    themeBtn.style.color = "#000";
+
+    // Forces the cursor to stay on your text when clicking the color label
+    themeBtn.onmousedown = function(event) {
+        event.preventDefault();
+    };
+
+    themeBtn.onclick = function() {
+        document.execCommand("backColor", false, themeColor);
+    };
+
+    document.getElementById("customThemes").appendChild(themeBtn);
+    document.getElementById("newThemeName").value = "";
+}
+// Intercepts the Tab key inside the workspace to indent text instead of changing focus
+function handleTabKey(event) {
+    if (event.key === 'Tab') {
+        event.preventDefault(); // Stops the browser from leaving the text box
+        
+        if (event.shiftKey) {
+            // Shift + Tab moves it backward
+            document.execCommand('outdent', false, null);
+        } else {
+            // Tab moves it forward
+            document.execCommand('indent', false, null);
+        }
+    }
+}
+
+	// Applies a right-aligned grammatical badge from the dropdown selector
+function applySyntaxBadge(selectElement) {
+    const labelText = selectElement.value;
+    if (!labelText) return;
+
+    const sel = window.getSelection();
+    if (!sel.rangeCount) {
+        selectElement.value = ""; // Reset dropdown
+        return;
+    }
+
+    // Build the right-aligned badge
+    const badge = document.createElement("span");
+    badge.contentEditable = "false";
+    badge.innerText = labelText.toUpperCase();
+    badge.title = "Click to remove this badge";
+    
+    badge.style.cssText = `
+        float: right;
+        background-color: #e2e8f0;
+        color: #334155;
+        font-size: 0.7em;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid #cbd5e1;
+        margin-left: 15px;
+        cursor: pointer;
+        user-select: none;
+    `;
+
+    // Click to delete
+    badge.onclick = function() {
+        this.remove();
+    };
+
+    // Insert into cursor line
+    const range = sel.getRangeAt(0);
+    range.insertNode(badge);
+
+    // Reset dropdown back to default placeholder
+    selectElement.value = "";
+}
+
+// Toggles horizontal expansion for the phrasing canvas
+function toggleCanvasWidth(btn) {
+    const canvas = document.getElementById("observationWorkspace");
+    canvas.classList.toggle("expanded-canvas");
+
+    if (canvas.classList.contains("expanded-canvas")) {
+        btn.innerText = "↔ Reset Width";
+        btn.style.backgroundColor = "#cbd5e1";
+    } else {
+        btn.innerText = "↔ Expand Canvas";
+        btn.style.backgroundColor = "";
+    }
+}
+
+// Toggles dashed line + arrow for clauses that modify text BELOW them
+function toggleUpwardFlow() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+
+    let node = sel.anchorNode;
+    
+    // Walk up the DOM tree to find the active blockquote
+    while (node && node.id !== "observationWorkspace") {
+        if (node.tagName === "BLOCKQUOTE") {
+            node.classList.toggle("upward-flow");
+            return;
+        }
+        node = node.parentNode;
+    }
+}
+
 </script>
 </body>
 </html>
